@@ -167,8 +167,8 @@ const scenarios = [
   turns:[
     {npc:"Good morning. Passport and arrival card, please.",
      hint:"问好，然后说：给你，这是我的护照和入境卡。",
-     expected:["Good morning. Here you go.","Good morning, here is my passport and arrival card.","Here you are.","Sure, here you go."],
-     keywords:["here","passport"],
+     expected:["Good morning. Here you go.","Good morning, here is my passport and arrival card.","Here you are.","Sure, here you go.","Good morning, here you are, these are my passport and arrival card.","Good morning, here you are, this is my passport and arrival card.","Here you go, my passport and arrival card.","Good morning, here's my passport and arrival card."],
+     keywords:["here","passport","arrival","card"],
      tips:"'给你' 最地道的说法是 Here you go 或 Here you are，不要说 Give you。"},
     {npc:"What's the purpose of your visit to Singapore?",
      hint:"告诉他你来旅游的。",
@@ -700,7 +700,10 @@ function processUserResponse(mainText, alternatives) {
   let corrHTML = `<div class="correction-box ${statusClass}">`;
   corrHTML += `<div class="correction-status ${statusClass}">${statusText}</div>`;
 
-  if (analysis.score < 1.0) {
+  if (analysis.score >= 0.8 && analysis.score < 1.0) {
+    corrHTML += `<div class="correction-ref" style="color:#2e7d32">你的表达没问题！以下是另一种常见说法供参考：</div>`;
+    corrHTML += `<div class="correction-ref"><b>参考：</b>${analysis.bestMatch}</div>`;
+  } else if (analysis.score < 0.8) {
     corrHTML += `<div class="correction-ref"><b>参考回答：</b>${analysis.bestMatch}</div>`;
     if (analysis.yourIssues.length > 0) {
       corrHTML += `<div class="correction-ref" style="margin-top:4px"><b>你说的：</b>${analysis.highlighted}</div>`;
@@ -778,9 +781,11 @@ function computeScore(userText, expected, keywords) {
 
   // Keyword match bonus
   let keywordScore = 0;
+  let keywordAllMatch = false;
   if (keywords && keywords.length > 0) {
     const matched = keywords.filter(k => userText.includes(k.toLowerCase()));
     keywordScore = matched.length / keywords.length;
+    keywordAllMatch = matched.length === keywords.length;
   }
 
   // Word order similarity (LCS ratio)
@@ -788,7 +793,12 @@ function computeScore(userText, expected, keywords) {
   const orderScore = lcsLen / Math.max(userWords.length, expWords.length, 1);
 
   // Combine scores
-  return jaccard * 0.35 + keywordScore * 0.35 + orderScore * 0.3;
+  let score = jaccard * 0.35 + keywordScore * 0.35 + orderScore * 0.3;
+
+  // If all keywords matched and sentence is reasonably long, boost score
+  if (keywordAllMatch && userWords.length >= 3) score = Math.max(score, 0.82);
+
+  return score;
 }
 
 function lcs(a, b) {
