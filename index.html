@@ -27,6 +27,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .scenario-info h3{font-size:16px;font-weight:600;margin-bottom:4px}
 .scenario-info p{font-size:13px;color:#666;line-height:1.4}
 .scenario-tag{font-size:11px;background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:4px}
+.scenario-done{position:absolute;top:8px;right:8px;font-size:18px}
+.scenario-card{position:relative}
+.home-progress{text-align:center;color:#1a73e8;font-size:15px;font-weight:600;margin-bottom:16px}
 
 /* Chat Screen */
 .chat-screen{display:none;flex-direction:column;height:100vh}
@@ -160,393 +163,265 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 <script>
 // ===================== SCENARIO DATA =====================
 const scenarios = [
-// ===== DAY 1: 吉隆坡 =====
-{
-  id:1, icon:"🛬", title:"吉隆坡入境", tag:"DAY1 KLIA",
-  desc:"凌晨6点，你抵达吉隆坡KLIA机场，排队过入境检查。",
-  npcName:"Immigration Officer",
-  turns:[
-    {npc:"Passport, please. Where are you coming from?",
-     hint:"递上护照，说你从中国来的。",
-     expected:["Here's my passport. I'm coming from China.","Here you go. I flew in from China.","Sure. I'm arriving from China.","Here you are, I'm from China."],
-     keywords:["here","passport","china"],
-     tips:"从哪来用 I'm coming from... / I flew in from...。"},
-    {npc:"How long will you stay in Malaysia?",
-     hint:"你打算待3天。",
-     expected:["Three days.","I'll be staying for three days.","About three days.","For three days.","3 days."],
-     keywords:["three","3","days"],
-     tips:"表达停留时间可以简短回答 Three days 即可。"},
-    {npc:"What will you be doing here?",
-     hint:"说旅游，想去看双子塔、黑风洞，还要去马六甲。",
-     expected:["I'm here for sightseeing. I plan to visit the Petronas Towers, Batu Caves, and Melaka.","Tourism. I'd like to see the Petronas Twin Towers and visit Melaka.","I'm a tourist. I want to see Petronas Towers and Batu Caves."],
-     keywords:["petronas","tourist","sightseeing","tourism","batu","melaka"],
-     tips:"观光用 sightseeing / tourism，双子塔 Petronas Towers，黑风洞 Batu Caves，马六甲 Melaka。"},
-    {npc:"Where will you be staying?",
-     hint:"说你订了唐人街的福朋喜来登酒店。",
-     expected:["I'll be staying at Four Points by Sheraton in Chinatown.","At Four Points Sheraton, Chinatown.","I have a reservation at Four Points by Sheraton, Chinatown area.","I booked a hotel in Chinatown, Four Points by Sheraton."],
-     keywords:["four","points","sheraton","chinatown"],
-     tips:"福朋喜来登的英文是 Four Points by Sheraton。唐人街是 Chinatown。"}
-  ]
-},
-{
-  id:2, icon:"🚄", title:"买KLIA Express车票", tag:"DAY1 机场快线",
-  desc:"过了入境关，你要坐KLIA Express机场快线去市区。",
-  npcName:"Ticket Counter Staff",
-  turns:[
-    {npc:"Good morning! Where would you like to go?",
-     hint:"说你要去KL Sentral（吉隆坡中央车站）。",
-     expected:["Good morning. One ticket to KL Sentral, please.","I'd like to go to KL Sentral.","Hi, one way to KL Sentral please.","KL Sentral, please. One ticket."],
-     keywords:["kl","sentral","ticket"],
-     tips:"KL Sentral 是吉隆坡中央交通枢纽，读作 KL Sen-tral。"},
-    {npc:"One way or return?",
-     hint:"单程就行。",
-     expected:["One way, please.","Just one way.","Single trip please.","One way is fine."],
-     keywords:["one","way","single"],
-     tips:"单程 one way / single，往返 return / round trip。"},
-    {npc:"That's 55 ringgit. The next train departs in 10 minutes from Platform 1. It takes about 30 minutes.",
-     hint:"好的，可以刷卡吗？",
-     expected:["Can I pay by card?","Do you accept credit cards?","Sure. Can I use a credit card?","Do you take Visa?"],
-     keywords:["card","pay","credit"],
-     tips:"刷卡说 pay by card / use a credit card。马来西亚货币是 ringgit（令吉）。"},
-    {npc:"Yes, we accept all major cards. Here's your ticket. Platform 1, that way.",
-     hint:"谢谢！问一下车上有WiFi吗。",
-     expected:["Thank you! Is there WiFi on the train?","Thanks! Does the train have WiFi?","Thank you! Is WiFi available on board?","Great, thanks! Any WiFi on the train?"],
-     keywords:["thank","wifi","train"],
-     tips:"车上有没有某东西：Is there ... on the train? / Does the train have ...?"}
-  ]
-},
-{
-  id:3, icon:"🏨", title:"福朋喜来登入住", tag:"DAY1 唐人街",
-  desc:"你到了唐人街的福朋喜来登酒店，准备办理入住。",
-  npcName:"Front Desk",
-  turns:[
-    {npc:"Welcome to Four Points by Sheraton. Do you have a reservation?",
-     hint:"说有预订，名字是你的名字。",
-     expected:["Yes, I have a reservation under the name Zhou Jingjing.","Yes, I booked a room. The name is Zhou.","I have a reservation. Last name Zhou.","Yes, the reservation is under Zhou."],
-     keywords:["yes","reservation","name","zhou"],
-     tips:"预订查询说 under the name + 名字 或 under + 姓氏。"},
-    {npc:"May I see your passport, please? Let me check... Yes, a King Deluxe Room for two nights, checking out on June 19th.",
-     hint:"对的。问一下可不可以提前入住，因为你凌晨就到了。",
-     expected:["That's correct. Is it possible to check in early? I arrived very early this morning.","Yes. Can I do an early check-in? My flight arrived at 6 AM.","Right. I got here very early. Is early check-in available?"],
-     keywords:["early","check","arrived","morning"],
-     tips:"提前入住说 early check-in。航班到达用 arrived / got here。"},
-    {npc:"Let me check... Your room is actually ready. Here's your key card. Room 1208, 12th floor.",
-     hint:"太好了！问一下早餐几点开始，在哪里吃。",
-     expected:["Great! What time is breakfast? Where is it served?","Wonderful! When does breakfast start and where?","Perfect! Could you tell me the breakfast hours and location?","Thank you! What time and where is breakfast?"],
-     keywords:["breakfast","time","where"],
-     tips:"问时间和地点：What time is ...? Where is it served?"},
-    {npc:"Breakfast is from 6:30 to 10 AM at the restaurant on the 2nd floor. The WiFi password is on your key card. Enjoy your stay!",
-     hint:"谢谢！问一下从酒店怎么去双子塔。",
-     expected:["Thank you! How do I get to the Petronas Towers from here?","Thanks! What's the best way to get to Petronas Towers?","Thank you! Can you tell me how to get to KLCC from here?","Thanks! How far is it to the Petronas Towers?"],
-     keywords:["thank","petronas","get","how","klcc"],
-     tips:"问怎么去某地：How do I get to...? / What's the best way to get to...? KLCC 是双子塔所在的商圈。"}
-  ]
-},
-{
-  id:4, icon:"🏙️", title:"双子塔拍照", tag:"DAY1 KLCC",
-  desc:"上午10:30，你来到双子塔（Petronas Towers），想拍照留念。",
-  npcName:"Tourist / Security Guard",
-  turns:[
-    {npc:"Excuse me, would you like me to take a photo for you?",
-     hint:"太好了！请帮忙拍一张，以双子塔为背景。",
-     expected:["Yes please, that would be great! Can you get the towers in the background?","Sure, thank you! Please include the towers behind me.","That's so kind of you! Yes please, with the Petronas Towers in the background."],
-     keywords:["yes","please","tower","background"],
-     tips:"请别人帮拍照很常见。'以…为背景' 说 with ... in the background。"},
-    {npc:"Sure! Say cheese! ... Here you go. Want me to take another one?",
-     hint:"再拍一张竖着的，用来发朋友圈。",
-     expected:["Could you take one more in portrait mode? For social media.","One more please, but vertical this time.","Yes please, can you take a vertical one? I want to post it online."],
-     keywords:["one","more","portrait","vertical"],
-     tips:"竖拍说 portrait mode / vertical，横拍是 landscape mode / horizontal。"},
-    {npc:"No problem! There you go. Great photos!",
-     hint:"非常感谢！问一下哪里可以买到双子塔的门票。",
-     expected:["Thank you so much! By the way, where can I buy tickets for the towers?","Thanks a lot! Do you know where the ticket counter is?","Thank you! Where do I buy tickets to go up the towers?"],
-     keywords:["thank","ticket","where","buy","tower"],
-     tips:"问哪里买票：Where can I buy tickets? / Where is the ticket counter?"},
-    {npc:"The ticket counter is inside the Suria KLCC mall, at the base of the towers. But I think today's tickets might be sold out. You can also try buying online.",
-     hint:"好吧，那今天就在外面拍拍照吧。问一下附近的KLCC公园怎么走。",
-     expected:["Okay, I'll just enjoy the view from outside then. How do I get to KLCC Park?","That's fine. Can you tell me how to walk to KLCC Park?","No worries. Which way is KLCC Park from here?","Alright. Where is the KLCC Park?"],
-     keywords:["okay","klcc","park","how","where"],
-     tips:"问方向用 How do I get to...? / Which way is...? / Where is...?"}
-  ]
-},
-{
-  id:5, icon:"🛍️", title:"Pavilion商场咖啡", tag:"DAY1 武吉免登",
-  desc:"下午你逛到了Pavilion商场，想找家咖啡店休息一下。",
-  npcName:"Barista",
-  turns:[
-    {npc:"Hi! Welcome to our café. What can I get for you?",
-     hint:"要一杯冰拿铁。",
-     expected:["Hi, can I get an iced latte please?","I'd like an iced latte.","One iced latte please.","An iced latte, please."],
-     keywords:["iced","latte","please"],
-     tips:"冰拿铁 iced latte，热拿铁 hot latte，美式 Americano。"},
-    {npc:"Sure! What size? We have small, medium, and large.",
-     hint:"中杯的就好。",
-     expected:["Medium, please.","I'll have a medium.","Medium is fine.","A medium one please."],
-     keywords:["medium"],
-     tips:"咖啡店的杯型：small / medium / large，星巴克用 tall / grande / venti。"},
-    {npc:"Would you like any syrup? We have vanilla, caramel, and hazelnut.",
-     hint:"加一点焦糖糖浆。",
-     expected:["Caramel, please.","Can I add caramel syrup?","I'll have caramel please.","Yes, caramel syrup please."],
-     keywords:["caramel"],
-     tips:"焦糖 caramel，香草 vanilla，榛果 hazelnut。加糖浆说 add ... syrup。"},
-    {npc:"Great choice! That's 18 ringgit. For here or to go?",
-     hint:"在这里喝。问有没有充电的插座。",
-     expected:["For here, please. Is there a power outlet I can use?","I'll have it here. Do you have any charging outlets?","For here. Are there any outlets to charge my phone?","Here please. Is there somewhere I can charge my phone?"],
-     keywords:["here","outlet","charge","power"],
-     tips:"在这喝 for here，带走 to go。充电插座 power outlet / charging outlet。"}
-  ]
-},
-{
-  id:6, icon:"🍢", title:"阿罗街夜市", tag:"DAY1 Jalan Alor",
-  desc:"晚上6点，你来到著名的阿罗街夜市，准备大吃一顿。",
-  npcName:"Hawker Stall Owner",
-  turns:[
-    {npc:"Welcome! Sit anywhere you like. Here's the menu. What would you like?",
-     hint:"你想试试沙爹（烤肉串）和炒粿条。",
-     expected:["I'd like some satay and char kway teow, please.","Can I have satay and fried flat noodles?","I'll try the satay and char kway teow.","Satay and char kway teow please."],
-     keywords:["satay","char","kway","noodle"],
-     tips:"沙爹 satay（烤肉串），炒粿条 char kway teow（炒河粉）。"},
-    {npc:"Good choices! For the satay, would you like chicken, beef, or mixed?",
-     hint:"混合的，各来几串。",
-     expected:["Mixed, please. A few of each.","I'll have mixed. Some chicken and some beef.","Mixed please.","Can I get a mix of both?"],
-     keywords:["mixed","mix","both","each"],
-     tips:"混合的说 mixed，各来几个说 a few of each / some of each。"},
-    {npc:"And anything to drink? We have fresh coconut water, iced tea, and Tiger beer.",
-     hint:"来一个新鲜椰子水。",
-     expected:["I'll have a fresh coconut water, please.","One coconut water please.","Fresh coconut water please.","Can I get a coconut water?"],
-     keywords:["coconut","water","fresh"],
-     tips:"椰子水 coconut water，虎牌啤酒 Tiger beer 是马来西亚本地品牌。"},
-    {npc:"Here's your food! Enjoy! The satay comes with peanut sauce and cucumber.",
-     hint:"看起来太好吃了！问一下旁边那个摊位卖的是什么。",
-     expected:["This looks amazing! What's that stall over there selling?","Wow, this looks delicious! By the way, what are they selling at the next stall?","Looks great! What's that at the stall next to you?"],
-     keywords:["looks","stall","what","selling"],
-     tips:"问那是什么用 What's that? / What are they selling? 摊位叫 stall。"},
-    {npc:"That's our famous grilled chicken wings. Very popular! Would you like to try some?",
-     hint:"好的，来一份试试！总共多少钱？",
-     expected:["Yes, I'd like to try some! How much is everything in total?","Sure, give me a portion! What's the total?","I'll try some! How much for everything?","Yes please! What's my total bill?"],
-     keywords:["yes","try","how","much","total"],
-     tips:"'总共多少钱' 说 How much is everything in total? / What's the total?"}
-  ]
-},
-// ===== DAY 2: 吉隆坡 =====
-{
-  id:7, icon:"🕌", title:"黑风洞游览", tag:"DAY2 Batu Caves",
-  desc:"早上8:30，你来到吉隆坡近郊的黑风洞（Batu Caves），要爬272级台阶。",
-  npcName:"Local Guide / Vendor",
-  turns:[
-    {npc:"Good morning! First time at Batu Caves? Be careful with the monkeys, they'll grab your food and drinks!",
-     hint:"谢谢提醒！问一下爬上去要多久。",
-     expected:["Thank you for the warning! How long does it take to climb to the top?","Thanks for telling me! How long is the climb?","Good to know, thanks! How many minutes to walk up?"],
-     keywords:["thank","how","long","climb","top"],
-     tips:"爬上去用 climb to the top，问时间用 How long does it take to...?"},
-    {npc:"About 15 to 20 minutes if you take it slow. There are 272 steps. Make sure you bring water!",
-     hint:"好的。问一下需要脱鞋吗，因为这是印度教神庙。",
-     expected:["Okay. Do I need to take off my shoes inside the temple?","Got it. Should I remove my shoes when entering the cave temple?","Thanks. Is it required to take shoes off in the temple?"],
-     keywords:["shoes","take","off","remove","temple"],
-     tips:"脱鞋说 take off shoes / remove shoes。印度教神庙 Hindu temple。"},
-    {npc:"Yes, you need to remove your shoes before entering the temple inside the cave. You can leave them at the entrance.",
-     hint:"明白了。问有没有存放行李的地方，你不想背着包爬台阶。",
-     expected:["Got it. Is there a place to store my bag? I don't want to carry it up the stairs.","Understood. Can I leave my backpack somewhere? It's heavy for the climb.","I see. Is there any luggage storage? I'd rather not climb with my bag."],
-     keywords:["bag","store","leave","carry","backpack"],
-     tips:"存放行李 store my bag / leave my backpack somewhere。"},
-    {npc:"There are some lockers near the entrance. It's 5 ringgit. Here, I'll show you.",
-     hint:"太好了，谢谢你！你人真好。",
-     expected:["That's very helpful, thank you so much!","Great, thanks! You're so kind.","Thank you! That's really nice of you.","Awesome, thanks a lot! You're very helpful."],
-     keywords:["thank","kind","helpful","nice"],
-     tips:"夸人好用 You're so kind / That's really nice of you / You're very helpful。"}
-  ]
-},
-{
-  id:8, icon:"🍹", title:"Heli Lounge Bar", tag:"DAY2 天台酒吧",
-  desc:"晚上8点，你去了吉隆坡有名的Heli Lounge Bar天台酒吧，可以俯瞰KL夜景。",
-  npcName:"Bartender",
-  turns:[
-    {npc:"Welcome to Heli Lounge Bar! Just you tonight?",
-     hint:"是的，就一个人。问有没有靠边的位置，想看夜景。",
-     expected:["Yes, just me. Do you have a seat near the edge? I'd like to enjoy the view.","Just one. Can I sit by the railing to see the night view?","Yes, one person. Is there a spot with a good view of the city?"],
-     keywords:["one","seat","view","edge","city"],
-     tips:"靠边的位子 seat near the edge / by the railing。夜景 night view / city view。"},
-    {npc:"Sure, right this way. Here's our drink menu. Can I start you off with something?",
-     hint:"推荐一下这里的招牌鸡尾酒。",
-     expected:["What's your signature cocktail?","Can you recommend your best cocktail?","What do you recommend? I'd like to try something special.","What's your most popular drink?"],
-     keywords:["recommend","signature","cocktail","popular","special"],
-     tips:"招牌鸡尾酒 signature cocktail，最受欢迎的 most popular。"},
-    {npc:"Our signature is the KL Sunset — it's a mix of rum, passion fruit, and lime. Very refreshing!",
-     hint:"听起来不错，来一杯。问一下在这里可以拍照发社交媒体吗。",
-     expected:["Sounds great, I'll have one! By the way, is it okay to take photos here for social media?","That sounds nice, one please. Can I take photos and post them on social media?","I'll try that! Am I allowed to take photos here?"],
-     keywords:["sounds","one","photo","social","media"],
-     tips:"社交媒体说 social media，可以拍照吗 Can I take photos? / Is it okay to take photos?"},
-    {npc:"Of course! Everyone takes photos here. The best angle for the Petronas Towers is from that corner. Here's your KL Sunset!",
-     hint:"谢谢！这个夜景太美了。干杯！",
-     expected:["Thank you! The view is absolutely stunning. Cheers!","This is amazing! What a beautiful view. Cheers!","Wow, the night view is incredible! Thank you. Cheers!","Thanks! This view is breathtaking! Cheers!"],
-     keywords:["thank","view","beautiful","amazing","cheers","stunning"],
-     tips:"形容夜景美：stunning / breathtaking / incredible / amazing。干杯说 Cheers!"}
-  ]
-},
-// ===== DAY 3: 马六甲 → 新加坡 =====
-{
-  id:9, icon:"🚌", title:"买巴士票去马六甲", tag:"DAY3 TBS车站",
-  desc:"早上8点，你在吉隆坡TBS长途巴士站买票去马六甲。",
-  npcName:"Ticket Counter Staff",
-  turns:[
-    {npc:"Hi, where are you traveling to?",
-     hint:"去马六甲，要一张最近一班的票。",
-     expected:["I'm going to Melaka. Can I get a ticket for the next available bus?","One ticket to Melaka please, the next departure.","Hi, I need a ticket to Melaka. What's the next bus?","Melaka please. When is the next bus?"],
-     keywords:["melaka","ticket","next","bus"],
-     tips:"马六甲英文是 Melaka（马来语拼法）或 Malacca（英语拼法）。"},
-    {npc:"The next bus to Melaka departs at 8:30. It's a 2-hour ride. That'll be 15 ringgit.",
-     hint:"好的，问一下巴士上有卫生间和WiFi吗。",
-     expected:["I'll take it. Does the bus have a restroom and WiFi?","Sure. Is there a toilet and WiFi on the bus?","That's fine. Does the bus have a bathroom and WiFi?","Okay. Is there WiFi and a restroom on board?"],
-     keywords:["bus","restroom","toilet","wifi","bathroom"],
-     tips:"大巴上的卫生间 restroom / toilet / bathroom，车上 on the bus / on board。"},
-    {npc:"Yes, there's a restroom at the back. WiFi is available but it can be slow. Here's your ticket. Gate 12.",
-     hint:"谢谢。问一下到了马六甲车站怎么去荷兰红屋广场。",
-     expected:["Thank you. How do I get to the Dutch Square from Melaka bus station?","Thanks. What's the best way to get to Dutch Square from the station?","Thank you. When I arrive, how do I get to the Red Square?"],
-     keywords:["thank","dutch","square","get","station"],
-     tips:"荷兰红屋广场叫 Dutch Square 或 Red Square。问怎么去用 How do I get to...?"},
-    {npc:"You can take a Grab or a local taxi. It's about 10 minutes. Or you can walk, it's about 25 minutes.",
-     hint:"好的，那我打个Grab过去。谢谢你！",
-     expected:["I'll take a Grab then. Thank you!","Okay, I'll just grab a Grab. Thanks!","I'll use Grab. Thank you for the info!","Alright, a Grab sounds good. Thanks a lot!"],
-     keywords:["grab","thank"],
-     tips:"在马来西亚和新加坡，打车首选 Grab（类似滴滴）。"}
-  ]
-},
-{
-  id:10, icon:"🏛️", title:"马六甲鸡场街", tag:"DAY3 Jonker Street",
-  desc:"你在马六甲游览完荷兰红屋和圣保罗教堂后，来到了鸡场街（Jonker Street）。",
-  npcName:"Shop Owner / River Cruise Staff",
-  turns:[
-    {npc:"Welcome to Jonker Street! We have handmade souvenirs, local snacks, and antiques. Looking for anything?",
-     hint:"想买点手信带回去，有没有马六甲特色的小礼物？",
-     expected:["I'm looking for some souvenirs to bring back. Do you have anything unique to Melaka?","I'd like some local gifts. What's special about Melaka?","Do you have any Melaka specialty souvenirs? I want gifts for friends."],
-     keywords:["souvenir","gift","melaka","local","special"],
-     tips:"手信/纪念品 souvenirs，特产 specialty / something unique to...。"},
-    {npc:"Our Melaka candy and coconut sugar are very popular. Also, these hand-painted tiles make great gifts. They're 15 ringgit each.",
-     hint:"手绘瓷砖不错，买三个。总共多少？",
-     expected:["The tiles are lovely! I'll take three. How much in total?","I like these tiles. Three please. What's the total?","These are beautiful. Can I get three? How much for all three?"],
-     keywords:["three","3","tiles","total","much"],
-     tips:"好看可以说 lovely / beautiful。How much in total? / What's the total?"},
-    {npc:"Three tiles, that's 45 ringgit. Would you like me to wrap them for protection?",
-     hint:"好的，请帮忙包好，怕碎。问一下马六甲河游船在哪里坐。",
-     expected:["Yes please, wrap them well. By the way, where can I catch the Melaka River cruise?","Please wrap them carefully. Also, where is the river cruise departure point?","Yes, please protect them. Can you tell me where to take the river cruise?"],
-     keywords:["wrap","river","cruise","where"],
-     tips:"马六甲河游船 Melaka River cruise。在哪坐船 Where can I catch / take the river cruise?"},
-    {npc:"The river cruise jetty is just a 5-minute walk from here. Go straight and turn left at the bridge. It's 30 ringgit per person.",
-     hint:"太好了，谢谢！直走然后左转对吧？",
-     expected:["Great, thank you! So go straight and turn left at the bridge, right?","Thanks! Straight ahead and left at the bridge?","Thank you! Just to confirm, straight and then left at the bridge?"],
-     keywords:["straight","left","bridge","thank"],
-     tips:"确认方向时，复述一遍是好习惯：So go straight and turn left, right?"}
-  ]
-},
-// ===== DAY 3-4: 新加坡 =====
-{
-  id:11, icon:"🛃", title:"新加坡入境", tag:"DAY3 陆路过关",
-  desc:"傍晚4:30，你从马六甲坐巴士出发，经过新山入境新加坡。巴士在关口停靠，你需要下车过关。",
-  npcName:"Immigration Officer",
-  turns:[
-    {npc:"Passport please. Where are you entering from?",
-     hint:"递上护照，说从马来西亚过来的。",
-     expected:["Here's my passport. I'm coming from Malaysia.","Here you go. I entered from Malaysia by bus.","Sure, here it is. I'm traveling from Malaysia."],
-     keywords:["here","passport","malaysia"],
-     tips:"陆路入境用 I'm coming from / entering from / traveling from。"},
-    {npc:"How long will you be staying in Singapore?",
-     hint:"待两天，明晚就走。",
-     expected:["Two days. I'm leaving tomorrow night.","Just two days. I fly out tomorrow night.","About two days. My flight home is tomorrow night.","Two days, I'm departing tomorrow evening."],
-     keywords:["two","2","days","tomorrow","night"],
-     tips:"明晚走 I'm leaving / flying out / departing tomorrow night。"},
-    {npc:"Where will you be staying?",
-     hint:"说你在新加坡没订酒店，是当天来回的（其实你会在新山住一晚再过来）。简单说你会待一天然后从樟宜机场飞走。",
-     expected:["I'll be spending the day sightseeing and then flying out from Changi Airport.","I'm just here for the day, then I have a late night flight from Changi.","I'll be visiting for the day and leaving from Changi Airport tomorrow."],
-     keywords:["day","changi","airport","flight","sightseeing"],
-     tips:"当天来回可以说 I'm just here for the day。樟宜机场 Changi Airport。"},
-    {npc:"Alright. Welcome to Singapore. Enjoy your stay.",
-     hint:"谢谢！",
-     expected:["Thank you!","Thanks a lot!","Thank you, I will!","Thanks!"],
-     keywords:["thank","thanks"],
-     tips:"入境官说 Welcome / Enjoy your stay 时，简单回 Thank you 即可。"}
-  ]
-},
-{
-  id:12, icon:"🌳", title:"滨海湾花园", tag:"DAY4 Gardens by the Bay",
-  desc:"早上10点，你来到了新加坡的滨海湾花园（Gardens by the Bay）。",
-  npcName:"Ticket Staff / Visitor Guide",
-  turns:[
-    {npc:"Good morning! Welcome to Gardens by the Bay. Would you like tickets for the Flower Dome and Cloud Forest?",
-     hint:"是的，买一张两个馆的联票。多少钱？",
-     expected:["Yes, I'd like a combined ticket for both. How much is it?","One combo ticket for both please. What's the price?","Yes please, one ticket for both conservatories. How much?","I'd like a combined ticket. What does it cost?"],
-     keywords:["combined","combo","both","ticket","much","price"],
-     tips:"联票说 combined ticket / combo ticket，两个馆 both conservatories。"},
-    {npc:"The combined ticket is 53 Singapore dollars. The outdoor gardens and Supertree Grove are free to visit.",
-     hint:"好的，买一张。问一下超级树灯光秀几点开始。",
-     expected:["I'll take one. What time does the Supertree light show start?","One please. When is the Supertree Grove light show?","Sure. By the way, what time is the light and sound show at the Supertrees?"],
-     keywords:["one","supertree","light","show","time"],
-     tips:"超级树 Supertree，灯光秀 light show / light and sound show。"},
-    {npc:"The Garden Rhapsody light show is at 7:45 PM and 8:45 PM every night. It's free! Best viewed from the Supertree Grove area.",
-     hint:"太好了，免费的！问一下花穹（Flower Dome）里面可以拍照吗。",
-     expected:["Great, it's free! Can I take photos inside the Flower Dome?","Wonderful! Is photography allowed in the Flower Dome?","Nice! Am I allowed to take pictures in the Flower Dome?"],
-     keywords:["free","photo","picture","flower","dome"],
-     tips:"花穹 Flower Dome，云雾林 Cloud Forest。可以拍照吗 Can I take photos?"},
-    {npc:"Yes, photos are welcome! No flash photography though. Also, it's quite cool inside, around 23 degrees, so bring a jacket if you have one.",
-     hint:"谢谢提醒！我正好带了外套。问一下哪个馆先看比较好。",
-     expected:["Thanks for the tip! I have a jacket. Which conservatory should I visit first?","Thank you! I brought one. Which one do you recommend seeing first?","Good to know, I have a jacket. Which garden should I start with?"],
-     keywords:["thank","which","first","recommend","start"],
-     tips:"'先看哪个好' 用 Which should I visit first? / Which do you recommend seeing first?"}
-  ]
-},
-{
-  id:13, icon:"🦁", title:"鱼尾狮和滨海湾", tag:"DAY4 Marina Bay",
-  desc:"下午2点，你来到了鱼尾狮公园（Merlion Park），然后沿着滨海湾散步。",
-  npcName:"Fellow Tourist / Local",
-  turns:[
-    {npc:"Hi! Would you mind taking a photo of us with the Merlion?",
-     hint:"没问题！问他们要横着拍还是竖着拍。",
-     expected:["Sure! Would you like it in landscape or portrait mode?","No problem! Do you want horizontal or vertical?","Of course! Landscape or portrait?","Happy to help! Horizontal or vertical?"],
-     keywords:["landscape","portrait","horizontal","vertical"],
-     tips:"横拍 landscape / horizontal，竖拍 portrait / vertical。"},
-    {npc:"Portrait please! Thank you so much! Are you here on vacation too?",
-     hint:"是的，第一次来新加坡。问他们有没有什么推荐的地方。",
-     expected:["Yes, it's my first time in Singapore! Do you have any recommendations?","Yeah, first time here! Any must-see places you'd recommend?","Yes I am! This is my first visit. Any suggestions for things to see?"],
-     keywords:["first","time","recommend","suggestion","visit"],
-     tips:"第一次来用 my first time / my first visit。推荐用 recommendations / suggestions。"},
-    {npc:"You should definitely try the food at Lau Pa Sat! It's a famous hawker center nearby. The satay street there is amazing at night.",
-     hint:"听起来太棒了！怎么走过去？",
-     expected:["That sounds wonderful! How do I get there?","Sounds amazing! How far is it from here?","I'll definitely check it out! Which direction is it?","Great tip! Can you point me in the right direction?"],
-     keywords:["sounds","how","get","direction","far"],
-     tips:"Lau Pa Sat 是老巴刹，新加坡著名的熟食中心，以沙爹街闻名。"},
-    {npc:"It's about a 10-minute walk. Just head towards the tall buildings and you'll see it on your left. You can't miss it!",
-     hint:"谢谢推荐！祝你们旅途愉快。",
-     expected:["Thank you for the recommendation! Have a wonderful trip!","Thanks so much! Enjoy the rest of your vacation!","Thank you! Have a great time in Singapore!","Thanks for the tip! Enjoy your trip!"],
-     keywords:["thank","enjoy","trip","wonderful","great"],
-     tips:"祝旅途愉快：Have a wonderful trip! / Enjoy the rest of your vacation!"}
-  ]
-},
-{
-  id:14, icon:"✈️", title:"樟宜机场免税店", tag:"DAY4 回程",
-  desc:"晚上10点，你到了樟宜机场，凌晨2点的航班。逛逛免税店买伴手礼。",
-  npcName:"Sales Staff",
-  turns:[
-    {npc:"Hi! Are you looking for anything in particular?",
-     hint:"想给同事带点巧克力，有没有新加坡特色的。",
-     expected:["Yes, I'm looking for some chocolates for my colleagues. Do you have anything Singaporean?","I'd like some Singapore chocolate gifts for coworkers. Any recommendations?","Hi, I want to buy chocolates as gifts. Something local to Singapore?"],
-     keywords:["chocolate","colleague","coworker","gift","singapore"],
-     tips:"同事 colleagues / coworkers。新加坡特色的 something Singaporean / local to Singapore。"},
-    {npc:"We have Bengawan Solo pandan cake and these Singapore Merlion chocolates. Very popular with tourists!",
-     hint:"鱼尾狮巧克力不错，买5盒。多少钱？",
-     expected:["The Merlion chocolates look nice. I'll take five boxes. How much in total?","I like the Merlion ones. Five boxes please. What's the total?","Five boxes of the Merlion chocolates please. How much altogether?"],
-     keywords:["five","5","merlion","box","total","much"],
-     tips:"Bengawan Solo 是新加坡知名糕点品牌，班兰蛋糕 pandan cake 是特色。"},
-    {npc:"Five boxes, that's 60 Singapore dollars. Would you like a bag?",
-     hint:"好的，帮忙装袋。问一下登机口怎么走，你是T1航站楼的。",
-     expected:["Yes please. Can you tell me how to get to Terminal 1 departure gates?","A bag please. By the way, which way to Terminal 1 gates?","Yes thanks. How do I get to the boarding gates in Terminal 1?"],
-     keywords:["terminal","1","gate","boarding","how"],
-     tips:"航站楼 Terminal，登机口 departure gate / boarding gate。"},
-    {npc:"Terminal 1 gates are this way. Follow the signs after the escalator. Safe travels!",
-     hint:"谢谢！一路平安。",
-     expected:["Thank you! Have a good night!","Thanks! Safe travels to you too!","Thank you so much! Goodbye!","Thanks a lot! Have a great night!"],
-     keywords:["thank","good","safe","night"],
-     tips:"旅途平安 Safe travels，一路顺风也可以说 Have a safe trip / Have a safe flight。"}
-  ]
-}
+// ========== DAY 1: 吉隆坡到达 ==========
+{id:1,icon:"🛬",title:"吉隆坡入境",tag:"DAY1 KLIA",desc:"凌晨6点，你抵达KLIA机场，排队过入境检查。",npcName:"Immigration Officer",turns:[
+{npc:"Passport, please. Where are you coming from?",hint:"递上护照，说你从中国来的。",expected:["Here's my passport. I'm coming from China.","Here you go. I flew in from China.","Sure, here you are. I'm from China."],keywords:["here","passport","china"],tips:"从哪来用 I'm coming from... / I flew in from...。"},
+{npc:"How long will you stay in Malaysia?",hint:"你打算待3天。",expected:["Three days.","I'll be staying for three days.","About three days.","For 3 days."],keywords:["three","3","days"],tips:"简短回答 Three days 即可。"},
+{npc:"What will you be doing here?",hint:"旅游，想去双子塔和马六甲。",expected:["I'm here for sightseeing. I plan to visit Petronas Towers and Melaka.","Tourism. I'd like to see the Petronas Towers.","I'm a tourist."],keywords:["tourist","sightseeing","tourism","petronas"],tips:"观光 sightseeing / tourism。"},
+{npc:"Where will you be staying?",hint:"唐人街的福朋喜来登酒店。",expected:["At Four Points by Sheraton in Chinatown.","I'll be staying at Four Points Sheraton, Chinatown.","I booked a hotel in Chinatown."],keywords:["four","points","chinatown","hotel"],tips:"福朋喜来登 Four Points by Sheraton。"}
+]},
+{id:2,icon:"💱",title:"机场换钱",tag:"DAY1 KLIA",desc:"过了入境关，你想换一些马来西亚令吉。",npcName:"Money Changer",turns:[
+{npc:"Hi, what currency would you like to exchange?",hint:"你想把人民币换成令吉。",expected:["I'd like to exchange Chinese yuan to Malaysian ringgit.","I want to change RMB to ringgit please.","Can I exchange yuan for ringgit?"],keywords:["exchange","yuan","ringgit","change"],tips:"人民币 Chinese yuan / RMB，令吉 ringgit。"},
+{npc:"Sure. How much would you like to exchange?",hint:"换1000块人民币。",expected:["One thousand yuan, please.","1000 RMB please.","I'd like to exchange 1000 yuan."],keywords:["thousand","1000"],tips:"金额直接说数字即可。"},
+{npc:"Today's rate is 1 yuan to 0.65 ringgit. So that'll be 650 ringgit. Is that okay?",hint:"汇率不太好，问有没有手续费。",expected:["Is there any commission or service fee?","Do you charge any fees?","Any extra charges on top of that?"],keywords:["commission","fee","charge"],tips:"手续费 commission / service fee。问有没有用 Is there any...? / Do you charge...?"}
+]},
+{id:3,icon:"📱",title:"买电话卡",tag:"DAY1 KLIA",desc:"你想买一张本地电话卡上网用。",npcName:"Shop Staff",turns:[
+{npc:"Hi! Are you looking for a local SIM card?",hint:"是的，想要一张有流量的电话卡，用几天。",expected:["Yes, I need a SIM card with data for about 4 days.","I'd like a prepaid SIM with internet for a few days.","Yes, do you have a tourist SIM with data?"],keywords:["sim","data","days","tourist"],tips:"电话卡 SIM card，流量 data，预付费 prepaid。"},
+{npc:"We have a tourist plan: 15GB data for 7 days at 25 ringgit. It includes calls too.",hint:"好的，就要这个。能帮我装上吗？",expected:["I'll take that one. Can you help me install it?","Sure, that sounds good. Could you set it up for me?","I'll go with that plan. Can you put it in my phone?"],keywords:["take","install","set","help"],tips:"帮我装上 help me install it / set it up for me。"},
+{npc:"Sure! Can I see your phone? I'll set it up for you. You might need to restart your phone after.",hint:"好的，给你。要不要我先把旧卡取出来？",expected:["Here you go. Should I take out the old SIM first?","Here's my phone. Do I need to remove my current SIM?","Sure, here it is. Should I eject the old card first?"],keywords:["here","old","sim","remove","take"],tips:"取出旧卡 take out / remove the old SIM。"}
+]},
+{id:4,icon:"🚄",title:"买KLIA Express票",tag:"DAY1 机场快线",desc:"你要坐机场快线去市区KL Sentral。",npcName:"Ticket Staff",turns:[
+{npc:"Good morning! Where would you like to go?",hint:"去KL Sentral，买一张单程票。",expected:["One ticket to KL Sentral, please.","I'd like a one-way ticket to KL Sentral.","KL Sentral, single trip please."],keywords:["kl","sentral","ticket","one"],tips:"单程 one way / single，往返 return / round trip。"},
+{npc:"One way or return?",hint:"单程。",expected:["One way, please.","Just one way.","Single please."],keywords:["one","way","single"],tips:"单程 one way，往返 return。"},
+{npc:"That's 55 ringgit. The next train departs in 10 minutes from Platform 1.",hint:"好的，刷卡。问车上有WiFi吗。",expected:["I'll pay by card. Does the train have WiFi?","Card please. Is there WiFi on the train?","Can I pay by card? And is WiFi available on board?"],keywords:["card","wifi","train"],tips:"车上 on the train / on board。"}
+]},
+{id:5,icon:"🚗",title:"打Grab去酒店",tag:"DAY1 市区",desc:"到了KL Sentral，你打Grab去酒店。",npcName:"Grab Driver",turns:[
+{npc:"Hi! You're going to Four Points Sheraton Chinatown?",hint:"对的，确认目的地。",expected:["Yes, that's right.","Yes, Four Points Chinatown please.","Correct, thank you."],keywords:["yes","right","correct"],tips:"确认用 That's right / Correct。"},
+{npc:"Is this your first time in KL?",hint:"是的，第一次来，很期待。",expected:["Yes, it's my first time here. I'm very excited!","Yeah, first time in Malaysia! I'm looking forward to exploring.","Yes, my first visit!"],keywords:["first","time","excited"],tips:"第一次来 my first time here / my first visit。"},
+{npc:"Nice! You should try the food at Jalan Alor tonight. Best street food in KL!",hint:"好的，我正好打算今晚去！谢谢推荐。",expected:["That's actually my plan for tonight! Thanks for the tip!","I'm planning to go there tonight! Thank you for the recommendation.","Yes, it's on my list! Thanks!"],keywords:["plan","tonight","thank","tip"],tips:"正好打算去 That's my plan / It's on my list。"},
+{npc:"Here we are. Four Points Sheraton. Have a great stay!",hint:"谢谢，一路很顺利。",expected:["Thank you! It was a smooth ride.","Thanks a lot! Have a nice day.","Thank you, great driving!"],keywords:["thank","smooth","ride"],tips:"一路顺利 smooth ride。"}
+]},
+{id:6,icon:"🏨",title:"福朋喜来登入住",tag:"DAY1 唐人街",desc:"你到了酒店前台办理入住。",npcName:"Front Desk",turns:[
+{npc:"Welcome to Four Points by Sheraton. Do you have a reservation?",hint:"有预订，你的名字。",expected:["Yes, a reservation under Zhou Jingjing.","Yes, I booked a room. Last name Zhou.","I have a reservation. The name is Zhou."],keywords:["yes","reservation","zhou"],tips:"预订查询说 under + 名字 或 Last name + 姓。"},
+{npc:"A King Deluxe Room for two nights, checking out June 19th. May I see your passport?",hint:"对的，递护照。问能不能提前入住。",expected:["Here's my passport. Is early check-in possible? I arrived very early.","Sure, here you go. Can I check in now? My flight arrived at 6 AM."],keywords:["passport","early","check","arrived"],tips:"提前入住 early check-in。"},
+{npc:"Your room is ready! Here's your key card. Room 1208. Breakfast is 6:30 to 10 AM on the 2nd floor.",hint:"谢谢，问WiFi密码和去双子塔怎么走。",expected:["Thank you! What's the WiFi password? And how do I get to the Petronas Towers?","Thanks! Could you tell me the WiFi password? Also, what's the best way to KLCC?"],keywords:["wifi","password","petronas","klcc","how"],tips:"KLCC 是双子塔所在商圈。"},
+{npc:"WiFi password is on the key card. For KLCC, take the MRT from Pasar Seni station, it's a 5-minute walk from here.",hint:"太好了，谢谢！",expected:["Perfect, thank you so much!","Great, thanks for the info!","Wonderful, thanks!"],keywords:["thank","perfect","great"],tips:"Pasar Seni 是唐人街附近的地铁站。"}
+]},
+{id:7,icon:"🏙️",title:"双子塔拍照",tag:"DAY1 KLCC",desc:"上午10:30，你来到双子塔拍照。",npcName:"Tourist",turns:[
+{npc:"Excuse me, would you like me to take a photo for you?",hint:"太好了，请帮忙拍，以双子塔为背景。",expected:["Yes please! Can you get the towers in the background?","That would be great! With the Petronas Towers behind me please.","Sure, thank you! Please include the towers."],keywords:["yes","tower","background","please"],tips:"以…为背景 with ... in the background。"},
+{npc:"Sure! Say cheese! ... Here you go. Want another one?",hint:"再拍一张竖的。",expected:["One more in portrait mode please.","Could you take a vertical one too?","Yes, a portrait one please."],keywords:["portrait","vertical","one","more"],tips:"竖拍 portrait / vertical，横拍 landscape。"},
+{npc:"Great shots! Where are you from?",hint:"中国来的。你呢？",expected:["I'm from China. How about you?","From China! And you? Where are you from?","I'm Chinese. Where are you from?"],keywords:["china","chinese","where","you"],tips:"反问对方用 How about you? / And you?"}
+]},
+{id:8,icon:"🛍️",title:"KLCC商场买纪念品",tag:"DAY1 Suria KLCC",desc:"你在双子塔底下的Suria KLCC商场逛逛买纪念品。",npcName:"Shop Staff",turns:[
+{npc:"Hello! Looking for anything special?",hint:"想买些冰箱贴和钥匙扣送朋友。",expected:["I'm looking for fridge magnets and keychains as gifts.","Do you have any fridge magnets or keychains?","I'd like some souvenirs, like magnets and keychains."],keywords:["fridge","magnet","keychain","gift","souvenir"],tips:"冰箱贴 fridge magnet，钥匙扣 keychain。"},
+{npc:"We have these Petronas Towers magnets and KLCC keychains. Very popular!",hint:"好看，买5个冰箱贴。多少钱一个？",expected:["These are nice! How much is each magnet? I'd like five.","I'll take five magnets. What's the price per piece?","How much for one? I want five."],keywords:["five","5","how","much","magnet"],tips:"每个多少钱 How much each? / Price per piece?"},
+{npc:"10 ringgit each, or 5 for 40 ringgit.",hint:"5个40，划算。就买5个。",expected:["Five for 40? Good deal. I'll take five.","That's a good price. Five please!","I'll go with five for 40 ringgit."],keywords:["five","5","deal","take","40"],tips:"划算 good deal / good price。"}
+]},
+{id:9,icon:"☕",title:"Pavilion商场咖啡",tag:"DAY1 武吉免登",desc:"下午2:30，你逛Pavilion商场，想喝杯咖啡歇歇。",npcName:"Barista",turns:[
+{npc:"Hi! What can I get for you?",hint:"要一杯冰拿铁，中杯。",expected:["An iced latte please, medium size.","I'd like a medium iced latte.","Medium iced latte please."],keywords:["iced","latte","medium"],tips:"冰拿铁 iced latte，美式 Americano。"},
+{npc:"Would you like any syrup? Vanilla, caramel, or hazelnut?",hint:"加焦糖。",expected:["Caramel please.","I'll add caramel syrup.","Caramel, please."],keywords:["caramel"],tips:"焦糖 caramel，香草 vanilla，榛果 hazelnut。"},
+{npc:"18 ringgit. For here or to go?",hint:"在这喝。有没有充电插座？",expected:["For here please. Do you have any power outlets?","I'll drink here. Is there a place to charge my phone?","Here please. Any charging outlets available?"],keywords:["here","outlet","charge","power"],tips:"在这喝 for here，带走 to go。充电插座 power outlet。"}
+]},
+{id:10,icon:"🏪",title:"便利店买水",tag:"DAY1 市区",desc:"天气很热，你走进一家7-Eleven买水。",npcName:"Cashier",turns:[
+{npc:"Hello!",hint:"拿了两瓶水和一包薯片去结账。",expected:["Hi, just these please.","Hello, I'd like these two bottles of water and chips.","Just these, thank you."],keywords:["these","water","please"],tips:"结账时说 Just these please 最简单。"},
+{npc:"That's 8.50 ringgit. Cash or card?",hint:"刷卡。需要袋子吗？",expected:["Card please. Do I need a bag?","I'll pay by card. Can I get a bag?","Card. Is there a charge for the bag?"],keywords:["card","bag"],tips:"有些地方塑料袋收费，可以问 Is there a charge for the bag?"},
+{npc:"Bags are 20 sen. Would you like one?",hint:"不用了，我有自己的包。",expected:["No thanks, I have my own bag.","I'm fine, I'll put them in my backpack.","No need, thank you."],keywords:["no","own","bag","fine"],tips:"20 sen = 0.2 ringgit。sen 是令吉的分。"}
+]},
+{id:11,icon:"🍢",title:"阿罗街夜市点餐",tag:"DAY1 Jalan Alor",desc:"晚上6点，你来到阿罗街夜市大吃一顿。",npcName:"Hawker",turns:[
+{npc:"Welcome! Sit anywhere. What would you like?",hint:"想试沙爹和炒粿条。",expected:["I'd like some satay and char kway teow please.","Can I have satay and fried flat noodles?","Satay and char kway teow please."],keywords:["satay","char","kway","noodle"],tips:"沙爹 satay，炒粿条 char kway teow。"},
+{npc:"Chicken, beef, or mixed satay?",hint:"混合的。",expected:["Mixed please.","A mix of both.","Some of each please."],keywords:["mixed","mix","both","each"],tips:"混合的 mixed / a mix of both。"},
+{npc:"Anything to drink?",hint:"来一个新鲜椰子。",expected:["A fresh coconut please.","I'll have a coconut water.","One fresh coconut."],keywords:["coconut","fresh"],tips:"新鲜椰子 fresh coconut，椰子水 coconut water。"},
+{npc:"Here you go! 35 ringgit total.",hint:"好的，现金付。这个沙爹酱是什么做的？",expected:["Here's 50 ringgit. What's the satay sauce made of?","Cash. By the way, what's in the peanut sauce?","Sure. Is the sauce made from peanuts?"],keywords:["sauce","peanut","made"],tips:"沙爹酱是花生酱 peanut sauce。问成分 What's it made of?"}
+]},
+{id:12,icon:"🥥",title:"阿罗街买水果",tag:"DAY1 Jalan Alor",desc:"吃完饭，你想买些热带水果尝尝。",npcName:"Fruit Vendor",turns:[
+{npc:"Fresh fruits! Mango, durian, mangosteen! Want to try?",hint:"想试试山竹和芒果，但不敢试榴莲。",expected:["I'd like some mangosteen and mango. But I'm not brave enough for durian!","Can I have mangosteen and mango? I'll skip the durian.","Mangosteen and mango please. No durian for me!"],keywords:["mangosteen","mango","durian"],tips:"山竹 mangosteen，芒果 mango，榴莲 durian。"},
+{npc:"Haha, durian is the king of fruits! You should try just a small piece. It's very sweet.",hint:"那就试一小块吧。多少钱？",expected:["Okay, I'll try a small piece then! How much for everything?","Fine, let me try a little bit. How much altogether?","Alright, one small piece to try. What's the total?"],keywords:["try","small","piece","much","total"],tips:"试一小块 try a small piece。"},
+{npc:"Mango 5, mangosteen 8, durian piece 3. Total 16 ringgit.",hint:"好的，给你20。",expected:["Here's 20 ringgit.","Sure, here you go. 20 ringgit.","Here's 20."],keywords:["20","here"],tips:"给钱直接说 Here's + 金额。"}
+]},
+{id:13,icon:"🚕",title:"打Grab回酒店",tag:"DAY1 晚上",desc:"晚上9点，吃饱喝足，打Grab回酒店休息。",npcName:"Grab Driver",turns:[
+{npc:"Four Points Sheraton Chinatown?",hint:"对，就是那里。",expected:["Yes, that's correct.","Right, Four Points Chinatown.","Yes please."],keywords:["yes","correct","right"],tips:"确认即可。"},
+{npc:"How was your night at Jalan Alor?",hint:"太棒了，吃了很多好吃的。",expected:["It was amazing! The food was incredible.","So good! I tried satay and char kway teow.","It was great! I loved the street food."],keywords:["amazing","great","good","food"],tips:"形容体验好 amazing / incredible / great。"},
+{npc:"Here we are. Good night!",hint:"谢谢，晚安。",expected:["Thank you, good night!","Thanks! Have a good night!","Thank you, good night."],keywords:["thank","good","night"],tips:"晚安 Good night。"}
+]},
+// ========== DAY 2: 吉隆坡 ==========
+{id:14,icon:"🍳",title:"酒店吃早餐",tag:"DAY2 酒店",desc:"早上7点，你去酒店2楼餐厅吃自助早餐。",npcName:"Restaurant Staff",turns:[
+{npc:"Good morning! Your room number please?",hint:"1208房。",expected:["Good morning. Room 1208.","Morning! Room twelve-oh-eight.","1208 please."],keywords:["1208","room"],tips:"房间号直接说数字。"},
+{npc:"Thank you. Please help yourself. Tea or coffee?",hint:"要一杯咖啡，加牛奶。",expected:["Coffee with milk, please.","I'd like coffee with milk.","Coffee please, with milk."],keywords:["coffee","milk"],tips:"加奶 with milk，加糖 with sugar，黑咖啡 black coffee。"},
+{npc:"Here's your coffee. We have Western and Asian breakfast. The nasi lemak is very popular.",hint:"nasi lemak是什么？",expected:["What's nasi lemak?","What is nasi lemak exactly?","Can you tell me what nasi lemak is?"],keywords:["what","nasi","lemak"],tips:"nasi lemak 是椰浆饭，马来西亚国民早餐。"}
+]},
+{id:15,icon:"🚗",title:"打Grab去黑风洞",tag:"DAY2 出发",desc:"8:30，你打Grab去黑风洞。",npcName:"Grab Driver",turns:[
+{npc:"Batu Caves? About 30 minutes drive. Let's go!",hint:"好的。问他黑风洞有什么注意事项。",expected:["Sounds good. Any tips for visiting Batu Caves?","Great. Is there anything I should know before going?","Sure. Any advice for a first-time visitor?"],keywords:["tips","advice","know","visit"],tips:"注意事项 tips / things to know / advice。"},
+{npc:"Watch out for the monkeys! Don't hold food or drinks in your hands. And wear comfortable shoes for the stairs.",hint:"好的，谢谢提醒！一共有多少级台阶？",expected:["Thanks for the warning! How many steps are there?","Good to know! How many stairs to the top?","Thank you! How many steps do I have to climb?"],keywords:["thank","how","many","steps","stairs"],tips:"台阶 steps / stairs。多少级 How many steps?"},
+{npc:"272 steps! Here we are. Have fun!",hint:"谢谢！",expected:["Thank you! Wish me luck with the stairs!","Thanks! 272 steps, here I go!","Thank you, have a great day!"],keywords:["thank","luck","stairs"],tips:"祝我好运 Wish me luck!"}
+]},
+{id:16,icon:"🕌",title:"黑风洞游览",tag:"DAY2 Batu Caves",desc:"你来到了黑风洞，准备爬272级彩色台阶。",npcName:"Local Guide",turns:[
+{npc:"First time at Batu Caves? Be careful with the monkeys!",hint:"是的。问要不要脱鞋进庙。",expected:["Yes! Do I need to take off my shoes inside the temple?","First time! Should I remove my shoes in the temple?","Yes it is. Is it required to take shoes off?"],keywords:["shoes","take","off","remove","temple"],tips:"脱鞋 take off shoes / remove shoes。"},
+{npc:"Yes, remove shoes before entering the temple cave. You can leave them at the entrance.",hint:"有存行李的地方吗？不想背包爬。",expected:["Is there a place to store my bag? I don't want to carry it up.","Can I leave my backpack somewhere?","Any luggage storage available?"],keywords:["bag","store","leave","backpack"],tips:"存行李 store my bag / luggage storage。"},
+{npc:"There are lockers near the entrance, 5 ringgit.",hint:"好的。爬到顶要多久？",expected:["How long does it take to climb to the top?","How many minutes to walk up?","How long is the climb?"],keywords:["how","long","climb","top"],tips:"爬上去 climb to the top。"},
+{npc:"About 15 to 20 minutes. Take it slow and enjoy the view!",hint:"谢谢，我会慢慢爬的！",expected:["Thanks, I'll take my time!","Thank you! I'll go slowly.","Thanks! I'll enjoy the climb."],keywords:["thank","slow","time","enjoy"],tips:"慢慢来 take my time / go slowly。"}
+]},
+{id:17,icon:"🍛",title:"午餐吃印度菜",tag:"DAY2 午餐",desc:"从黑风洞下来，你在附近找了家印度餐厅吃午饭。",npcName:"Waiter",turns:[
+{npc:"Welcome! Table for one?",hint:"一个人。推荐什么菜？",expected:["Yes, just me. What do you recommend?","Table for one. Any recommendations?","Just one. What's your best dish?"],keywords:["one","recommend","best"],tips:"一个人 just me / table for one。"},
+{npc:"Our banana leaf rice is the most popular. You eat with your hands!",hint:"听起来很有趣，来一份。需要用手吃吗？",expected:["That sounds fun! I'll try it. Do I really eat with my hands?","I'll have that! Is it true you eat it by hand?","Sounds interesting! One please. Do I use my hands?"],keywords:["try","hands","sounds"],tips:"香蕉叶饭 banana leaf rice，用手吃是印度传统。"},
+{npc:"Yes! Use your right hand. Mix the rice with the curry. Here, I'll show you.",hint:"太棒了，入乡随俗。可以加辣吗？",expected:["Great, I'll give it a try! Can I add more spice?","Cool! Can you make it spicier?","That's awesome! Is it possible to add extra chili?"],keywords:["try","spice","spicy","chili","add"],tips:"加辣 add more spice / make it spicier。"}
+]},
+{id:18,icon:"🏛️",title:"天后宫参观",tag:"DAY2 下午",desc:"下午你来到天后宫（Thean Hou Temple），这是东南亚最大的中式庙宇之一。",npcName:"Temple Volunteer",turns:[
+{npc:"Welcome to Thean Hou Temple! Are you here for sightseeing?",hint:"是的，这个庙很漂亮！可以拍照吗？",expected:["Yes! This temple is beautiful. Can I take photos?","Yes, it's gorgeous here! Is photography allowed?","I'm sightseeing. It's stunning! May I take pictures?"],keywords:["beautiful","photo","picture","gorgeous"],tips:"形容漂亮 beautiful / gorgeous / stunning。"},
+{npc:"Of course! Photos are welcome everywhere except the main prayer hall. The rooftop has the best view of KL.",hint:"太好了，问天台怎么上去。",expected:["Great! How do I get to the rooftop?","Thank you! Which way to the rooftop?","Where are the stairs to the rooftop?"],keywords:["rooftop","how","where","stairs"],tips:"天台 rooftop，怎么上去 How do I get to the rooftop?"},
+{npc:"Take the stairs on the left side. You'll see the whole city from up there!",hint:"谢谢！这个庙是什么时候建的？",expected:["Thanks! When was this temple built?","Thank you! How old is this temple?","Thanks! What year was it built?"],keywords:["when","built","old","year"],tips:"什么时候建的 When was it built? / How old is it?"}
+]},
+{id:19,icon:"🏛️",title:"独立广场",tag:"DAY2 市中心",desc:"你来到了独立广场（Merdeka Square），这里是马来西亚宣布独立的地方。",npcName:"Passerby",turns:[
+{npc:"Excuse me, are you lost? Can I help you?",hint:"没迷路，在找苏丹阿都沙末大厦拍照。在哪个方向？",expected:["I'm not lost, but thank you! I'm looking for the Sultan Abdul Samad Building. Which direction?","Thanks! Actually, can you point me to the Sultan Abdul Samad Building?","I'm fine, but could you tell me where the Sultan Abdul Samad Building is?"],keywords:["sultan","abdul","samad","building","direction","where"],tips:"苏丹阿都沙末大厦是独立广场旁的标志性建筑。"},
+{npc:"It's right there! That beautiful building with the clock tower. You can't miss it.",hint:"哦看到了！这个建筑太漂亮了。它是什么风格的？",expected:["Oh I see it! It's beautiful! What architectural style is it?","There it is! What style of architecture is that?","Wow, I can see it now! What kind of architecture is this?"],keywords:["beautiful","style","architecture"],tips:"建筑风格 architectural style。"},
+{npc:"It's Moorish style, built in 1897 during the British colonial period. Very photogenic!",hint:"谢谢介绍！能帮我在这里拍张照吗？",expected:["Thank you for the information! Could you take a photo of me here?","That's fascinating! Would you mind taking my picture?","Thanks! Could I trouble you for a photo?"],keywords:["thank","photo","picture","take"],tips:"能帮我拍照吗 Could you take a photo of me?"}
+]},
+{id:20,icon:"☕",title:"鬼仔巷咖啡馆",tag:"DAY2 唐人街",desc:"你逛到了鬼仔巷（Kwai Chai Hong），这里有很多壁画和文艺咖啡馆。",npcName:"Barista",turns:[
+{npc:"Hi! Welcome. Are you here to see the murals?",hint:"是的，壁画很棒！想坐下来喝杯东西。有什么推荐的当地饮品？",expected:["Yes, the murals are amazing! I'd like to sit down for a drink. Any local drinks you recommend?","The murals are great! What local drinks do you have?","Yes! Can I get a drink? What's popular here?"],keywords:["mural","drink","local","recommend","popular"],tips:"壁画 mural，当地饮品 local drink。"},
+{npc:"Try our white coffee! It's a Ipoh specialty. Smooth and fragrant.",hint:"好的，来一杯冰的白咖啡。",expected:["Sounds great! I'll have an iced white coffee.","One iced white coffee please.","I'll try an iced white coffee!"],keywords:["iced","white","coffee"],tips:"白咖啡 white coffee 是怡保（Ipoh）特产，跟普通咖啡烘焙方式不同。"},
+{npc:"Here you go! 12 ringgit. By the way, the best murals are in the alley behind us.",hint:"谢谢提醒！我一会去看看。",expected:["Thanks for the tip! I'll check them out after my coffee.","Thank you! I'll go take a look later.","Great, I'll head there after this!"],keywords:["thank","check","look","after"],tips:"去看看 check them out / take a look。"}
+]},
+{id:21,icon:"👔",title:"Pavilion购物",tag:"DAY2 下午",desc:"你在Pavilion商场看中了一件衣服。",npcName:"Shop Assistant",turns:[
+{npc:"Hi! Can I help you with anything?",hint:"想看看T恤，有没有打折的。",expected:["I'm looking for T-shirts. Do you have any on sale?","Hi, I'd like to see your T-shirts. Are there any discounts?","Any T-shirts on promotion?"],keywords:["t-shirt","shirt","sale","discount","promotion"],tips:"打折 on sale / on promotion / discounted。"},
+{npc:"These are 30% off this week. What size are you?",hint:"M码。能试穿吗？",expected:["I'm a medium. Can I try it on?","Medium please. Where's the fitting room?","Size M. Can I try this on?"],keywords:["medium","try","fitting"],tips:"试穿 try on，试衣间 fitting room。"},
+{npc:"Fitting room is over there. Take your time!",hint:"试完了，很合适。问可不可以退税。",expected:["This fits perfectly! Can I get a tax refund?","I'll take it. Is tax-free shopping available?","It fits great! Do you offer tourist tax refund?"],keywords:["fit","tax","refund"],tips:"合适 fits perfectly，退税 tax refund。"}
+]},
+{id:22,icon:"🧳",title:"酒店退房寄存行李",tag:"DAY2 退房",desc:"第二晚你要退房，但还想继续玩，需要寄存行李。",npcName:"Front Desk",turns:[
+{npc:"Good morning! Checking out today?",hint:"是的，退房。但能不能寄存行李到晚上？",expected:["Yes, checking out. Can I store my luggage here until tonight?","I'd like to check out. Is it possible to leave my bags here until this evening?","Checking out. Can I leave my luggage for a few hours?"],keywords:["check","out","store","luggage","bag","leave"],tips:"寄存行李 store luggage / leave bags。"},
+{npc:"Of course! We can keep your luggage until 10 PM. Just pick it up at the front desk.",hint:"太好了。需要额外付费吗？",expected:["Great! Is there any charge for that?","Thank you! Is the luggage storage free?","Perfect. Do I need to pay extra?"],keywords:["charge","free","pay","extra"],tips:"额外付费 extra charge / pay extra。"},
+{npc:"It's complimentary for our guests. Here's your luggage tag. Have a great day!",hint:"太好了，免费的。谢谢！",expected:["That's wonderful, thank you!","Great, thanks so much!","Thank you! I'll be back tonight to pick it up."],keywords:["thank","wonderful","great"],tips:"免费提供 complimentary / free of charge。"}
+]},
+{id:23,icon:"🍹",title:"Heli Lounge Bar",tag:"DAY2 天台酒吧",desc:"晚上8点，你去Heli Lounge Bar看KL夜景喝酒。",npcName:"Bartender",turns:[
+{npc:"Welcome to Heli Lounge Bar! Just you tonight?",hint:"一个人。想坐靠边看夜景的位子。",expected:["Yes, just me. Can I sit near the edge for the view?","One person. Do you have a spot with a good city view?","Just one. I'd like a seat with a nice view."],keywords:["one","view","edge","seat"],tips:"靠边 near the edge / by the railing。"},
+{npc:"Sure! Here's our menu. What would you like?",hint:"推荐招牌鸡尾酒。",expected:["What's your signature cocktail?","Can you recommend something special?","What do you recommend?"],keywords:["signature","cocktail","recommend","special"],tips:"招牌鸡尾酒 signature cocktail。"},
+{npc:"The KL Sunset is our best — rum, passion fruit, and lime.",hint:"来一杯！这夜景太美了。",expected:["I'll have one! The view is absolutely stunning.","One please! Wow, what an incredible view.","Sounds perfect! This night view is amazing."],keywords:["one","view","stunning","amazing","incredible"],tips:"形容夜景 stunning / breathtaking / incredible。干杯 Cheers!"}
+]},
+{id:24,icon:"💊",title:"便利店买防晒",tag:"DAY2 防晒",desc:"大太阳暴走了一天，你被晒伤了，去药店买些东西。",npcName:"Pharmacist",turns:[
+{npc:"Hi, how can I help you?",hint:"你被晒伤了，想买晒后修复的东西。",expected:["I got sunburned today. Do you have any after-sun lotion?","I have a sunburn. What do you recommend for it?","Can I get something for sunburn? My skin is very red."],keywords:["sunburn","sun","lotion","skin","red"],tips:"晒伤 sunburn / got sunburned，晒后修复 after-sun lotion / aloe vera gel。"},
+{npc:"This aloe vera gel is very good for sunburn. Apply it generously. Also, drink lots of water.",hint:"好的，买这个。还有没有防晒霜？明天不想再晒伤了。",expected:["I'll take this. Do you also have sunscreen? I don't want to get burned again tomorrow.","This one please. And can I get a sunscreen too? SPF 50 if you have it."],keywords:["take","sunscreen","spf","tomorrow"],tips:"防晒霜 sunscreen，防晒指数 SPF。"},
+{npc:"Here's SPF 50 sunscreen. That's 45 ringgit for both.",hint:"好的，谢谢！",expected:["Thank you! I'll remember to put it on tomorrow.","Thanks! Lesson learned!","Thank you so much!"],keywords:["thank","tomorrow","learned"],tips:"吃一堑长一智 Lesson learned!"}
+]},
+{id:25,icon:"🌃",title:"取行李打Grab去TBS",tag:"DAY2 晚上",desc:"晚上你回酒店取行李，然后打Grab去TBS巴士站附近住。",npcName:"Grab Driver",turns:[
+{npc:"TBS bus station area? Going somewhere tomorrow?",hint:"是的，明天一早坐巴士去马六甲。",expected:["Yes, I'm taking a bus to Melaka tomorrow morning.","Yeah, I have an early bus to Melaka.","That's right, heading to Melaka tomorrow."],keywords:["bus","melaka","tomorrow","morning"],tips:"明天一早 tomorrow morning / early tomorrow。"},
+{npc:"Nice! Melaka is beautiful. The bus takes about 2 hours.",hint:"好的。你去过马六甲吗？有什么推荐？",expected:["Have you been to Melaka? Any recommendations?","Do you know Melaka well? What should I see?","Any tips for Melaka?"],keywords:["melaka","recommend","tips","been"],tips:"你去过吗 Have you been to...?"},
+{npc:"Try the chicken rice balls and cendol! And walk along the river at night. Here's TBS. Good night!",hint:"鸡饭粒和煎蕊！记住了。谢谢晚安！",expected:["Chicken rice balls and cendol, noted! Thank you, good night!","I'll definitely try those! Thanks, good night!","Great tips! Thank you and good night!"],keywords:["thank","night","try","noted"],tips:"鸡饭粒 chicken rice balls，煎蕊 cendol（椰奶冰甜品）。"}
+]},
+// ========== DAY 3: 马六甲 → 新山 ==========
+{id:26,icon:"🚌",title:"TBS买巴士票",tag:"DAY3 TBS车站",desc:"早上8点，在TBS长途巴士站买票去马六甲。",npcName:"Ticket Staff",turns:[
+{npc:"Hi, where are you going?",hint:"去马六甲，最近一班。",expected:["One ticket to Melaka please, the next bus.","I'm going to Melaka. When's the next bus?","Melaka please. Next available departure."],keywords:["melaka","ticket","next","bus"],tips:"马六甲 Melaka / Malacca。"},
+{npc:"Next bus is at 8:30, arrives around 10:30. 15 ringgit.",hint:"好的，买一张。巴士上有厕所吗？",expected:["I'll take it. Is there a restroom on the bus?","One please. Does the bus have a toilet?"],keywords:["take","restroom","toilet","bus"],tips:"巴士上的厕所 restroom / toilet on the bus。"},
+{npc:"Yes, at the back. Here's your ticket, Gate 12.",hint:"谢谢！",expected:["Thank you!","Thanks a lot!","Great, thanks!"],keywords:["thank"],tips:"Gate 是登车口。"}
+]},
+{id:27,icon:"💬",title:"巴士上聊天",tag:"DAY3 巴士",desc:"巴士上，旁边的乘客跟你搭话。",npcName:"Fellow Passenger",turns:[
+{npc:"Hi! Are you a tourist? Where are you from?",hint:"是的，从中国来的。你呢？",expected:["Yes, I'm from China! Where are you from?","I'm a tourist from China. And you?","Yes! I'm Chinese. How about you?"],keywords:["china","chinese","tourist","you"],tips:"And you? / How about you? 反问对方。"},
+{npc:"I'm local, from KL. Going to Melaka to visit family. Is this your first time in Malaysia?",hint:"是第一次来。你能推荐马六甲必去的地方吗？",expected:["Yes, first time! Can you recommend must-see places in Melaka?","It is! What are the must-visit spots in Melaka?","Yes! What should I definitely see in Melaka?"],keywords:["first","must","recommend","see","visit"],tips:"必去的 must-see / must-visit。"},
+{npc:"Definitely walk along Jonker Street, take the river cruise, and try chicken rice balls. Don't miss the Dutch Square!",hint:"太棒了，都记下了！谢谢你的建议。",expected:["Wonderful, I'll do all of that! Thank you for the suggestions!","That sounds amazing! I've noted everything. Thanks!","Great recommendations! Thank you so much!"],keywords:["thank","wonderful","amazing","suggestions","noted"],tips:"我都记下了 I've noted everything / I'll do all of that。"}
+]},
+{id:28,icon:"🚗",title:"马六甲打Grab",tag:"DAY3 马六甲",desc:"到了马六甲车站，打Grab去荷兰红屋广场。",npcName:"Grab Driver",turns:[
+{npc:"Dutch Square, right? About 10 minutes.",hint:"对的。问到了之后步行能到其他景点吗？",expected:["Yes! Once I'm there, can I walk to the other attractions?","Right. Are the other tourist spots within walking distance?","Yes. Is everything in the old town walkable from there?"],keywords:["walk","walking","other","attraction","distance"],tips:"步行距离内 within walking distance / walkable。"},
+{npc:"Yes! Everything in the old town is walkable. Jonker Street, the church, the river — all within 10 minutes on foot.",hint:"太方便了。谢谢！",expected:["That's so convenient! Thank you!","Great, that makes it easy! Thanks!","Perfect, I'll walk everywhere then. Thanks!"],keywords:["convenient","easy","thank","walk"],tips:"方便 convenient / easy。"}
+]},
+{id:29,icon:"🏛️",title:"荷兰红屋广场",tag:"DAY3 Dutch Square",desc:"你到了荷兰红屋广场，鲜红的建筑很壮观。",npcName:"Trishaw Driver",turns:[
+{npc:"Hello! Want a trishaw ride around the old town? Very fun, with music!",hint:"多少钱？骑多久？",expected:["How much is the ride? And how long does it take?","That sounds fun! What's the price and how long?","How much for one ride? How many minutes?"],keywords:["how","much","long","price","minutes"],tips:"三轮车 trishaw。问价格和时长一起问更高效。"},
+{npc:"40 ringgit for 30 minutes. I'll take you around all the main landmarks!",hint:"能便宜点吗？30块行不行？",expected:["Can you give me a discount? How about 30 ringgit?","That's a bit expensive. Would you do 30?","Can we do 30 ringgit instead?"],keywords:["discount","30","expensive","instead"],tips:"砍价 Can you give me a discount? / How about + 价格?"},
+{npc:"Okay, 35. Deal?",hint:"成交！我们出发吧。",expected:["Deal! Let's go!","35, deal! Let's start.","Okay, 35 it is! Let's go!"],keywords:["deal","go","start","35"],tips:"成交 Deal! / It's a deal!"}
+]},
+{id:30,icon:"⛪",title:"圣保罗教堂",tag:"DAY3 古迹",desc:"你爬上圣保罗山，参观16世纪的教堂遗址。",npcName:"Tour Guide",turns:[
+{npc:"This is St. Paul's Church, built in 1521 by the Portuguese. Would you like to hear the history?",hint:"好的，很感兴趣！这是马六甲最古老的建筑吗？",expected:["Yes please! Is this the oldest building in Melaka?","I'd love to hear about it! Is this the oldest structure here?","Sure! How old is this church exactly?"],keywords:["yes","oldest","old","history","building"],tips:"最古老的 the oldest。建筑 building / structure。"},
+{npc:"It's one of the oldest. The Portuguese, then the Dutch, and the British all ruled Melaka. That's why you see different architectural styles.",hint:"原来如此，历史很丰富。从这里能看到什么风景？",expected:["Fascinating! What can I see from up here?","That's really interesting! What's the view like from the top?","Wow, so much history! Is there a good view from here?"],keywords:["fascinating","interesting","view","see","history"],tips:"真有趣 Fascinating / That's really interesting。"},
+{npc:"You can see the Strait of Malacca from here! That's where all the ancient trade ships passed through.",hint:"太美了！可以在这里拍照吗？",expected:["It's beautiful! May I take photos here?","What a view! Can I take pictures?","Stunning! Is photography allowed?"],keywords:["beautiful","photo","picture","take"],tips:"马六甲海峡 Strait of Malacca。"}
+]},
+{id:31,icon:"🛍️",title:"鸡场街买手信",tag:"DAY3 Jonker Street",desc:"你在鸡场街（Jonker Street）逛逛买纪念品。",npcName:"Shop Owner",turns:[
+{npc:"Welcome! We have handmade souvenirs and local snacks!",hint:"想买马六甲特色的纪念品送朋友。",expected:["I'm looking for Melaka specialty souvenirs for friends.","Do you have anything unique to Melaka? I need gifts.","What local souvenirs do you recommend?"],keywords:["souvenir","melaka","gift","local","recommend"],tips:"特色纪念品 specialty souvenirs / something unique to Melaka。"},
+{npc:"These hand-painted tiles are very popular. 15 ringgit each.",hint:"好看，买3个。总共多少？",expected:["They're beautiful! I'll take three. How much total?","Lovely! Three please. What's the total?"],keywords:["three","3","total","beautiful"],tips:"How much total? / What's the total?"},
+{npc:"Three for 45, or I can do 40 for you.",hint:"好的，40成交。帮忙包好，怕碎。",expected:["40, deal! Please wrap them carefully, I'm worried they might break.","Deal! Can you wrap them well for protection?","Sure, 40. Please package them safely."],keywords:["deal","wrap","carefully","break","protect"],tips:"包好 wrap carefully，怕碎 worried they might break。"}
+]},
+{id:32,icon:"🍮",title:"鸡场街吃榴莲泡芙",tag:"DAY3 美食",desc:"鸡场街有很多特色小吃，你想试试有名的榴莲泡芙。",npcName:"Stall Owner",turns:[
+{npc:"Durian puff! Fresh made! Want to try?",hint:"来两个。不太能吃榴莲，味道重吗？",expected:["I'll try two. Is the durian flavor very strong?","Two please. How strong is the durian taste?","Give me two. I'm not used to durian — is it very intense?"],keywords:["two","2","strong","durian","taste","flavor"],tips:"味道重 strong flavor / intense taste。"},
+{npc:"It's mild, creamy, and sweet. Not too strong. You'll love it!",hint:"好的，那我试试。多少钱？",expected:["Okay, I'll give it a try! How much?","Sounds good! How much for two?","Let me try then! What's the price?"],keywords:["try","much","price","two"],tips:"试试看 give it a try。"},
+{npc:"6 ringgit for two. Here you go!",hint:"吃完觉得很好吃！想再买几个带走。",expected:["This is delicious! Can I get four more to take away?","Wow, I love it! Four more to go please!","So good! I'll have another four to go."],keywords:["delicious","more","four","go","take"],tips:"带走 to go / to take away。好吃 delicious / I love it。"}
+]},
+{id:33,icon:"🚢",title:"马六甲河游船",tag:"DAY3 River Cruise",desc:"你去坐马六甲河游船。",npcName:"Ticket Staff",turns:[
+{npc:"Welcome! One ticket for the river cruise?",hint:"是的，一张。游船多久一趟？",expected:["Yes, one please. How often do the boats run?","One ticket please. What's the schedule?","Yes. How frequently does the cruise depart?"],keywords:["one","ticket","often","schedule","frequently"],tips:"多久一趟 How often / How frequently。"},
+{npc:"Every 30 minutes. The ride is about 45 minutes round trip. 30 ringgit.",hint:"好的，买一张。可以在船上拍照吗？",expected:["I'll take one. Can I take photos on the boat?","Sure. Is photography allowed during the cruise?","One please. Can I take pictures from the boat?"],keywords:["one","photo","picture","boat","cruise"],tips:"船上 on the boat / during the cruise。"},
+{npc:"Yes, photos are fine! The best spots are when you pass under the old bridges. Next boat leaves in 5 minutes, Pier 2.",hint:"太好了，我去排队了。谢谢！",expected:["Great, I'll head to the pier now. Thank you!","Perfect timing! Thanks!","I'll go line up. Thank you!"],keywords:["thank","pier","head","line"],tips:"码头 pier，排队 line up / queue up。"}
+]},
+{id:34,icon:"🍚",title:"路边摊吃椰浆饭",tag:"DAY3 午餐",desc:"你在马六甲街头找了家摊位吃椰浆饭（nasi lemak）。",npcName:"Stall Owner",turns:[
+{npc:"Nasi lemak? Best one in Melaka!",hint:"好的，来一份。辣吗？",expected:["One nasi lemak please. Is it spicy?","I'll try one. How spicy is it?","Yes please! Is the sambal very hot?"],keywords:["nasi","lemak","one","spicy","hot"],tips:"椰浆饭 nasi lemak，辣酱 sambal。"},
+{npc:"A little bit spicy. I can make it less spicy for you. Want an egg and chicken?",hint:"少辣的，加鸡肉和蛋。",expected:["Less spicy please, with chicken and egg.","Mild please. Add chicken and egg.","Not too spicy. I'll have chicken and egg."],keywords:["less","spicy","mild","chicken","egg"],tips:"少辣 less spicy / mild，加… add / with。"},
+{npc:"Here you go! 10 ringgit. Enjoy!",hint:"闻起来好香！谢谢。",expected:["It smells amazing! Thank you!","Smells so good! Thanks!","Wow, it smells wonderful!"],keywords:["smell","amazing","good","thank"],tips:"闻起来好香 It smells amazing / So good!"}
+]},
+{id:35,icon:"🚌",title:"买巴士票去新山",tag:"DAY3 去新山",desc:"下午4:30，你在马六甲巴士站买票去新山（Johor Bahru）。",npcName:"Ticket Staff",turns:[
+{npc:"Where to?",hint:"去新山Johor Bahru，最近的一班。",expected:["Johor Bahru please. What's the next bus?","One ticket to JB, next available.","JB please. When's the next departure?"],keywords:["johor","bahru","jb","next","bus"],tips:"新山简称 JB，全称 Johor Bahru。"},
+{npc:"Next bus at 4:45. Takes about 3 hours. 35 ringgit.",hint:"好的。到新山是到哪个车站？",expected:["I'll take it. Which station does it arrive at in JB?","One please. Where exactly does it drop off in Johor Bahru?","Sure. What's the arrival station in JB?"],keywords:["station","arrive","jb","where","drop"],tips:"到哪个站 Which station does it arrive at?"},
+{npc:"Larkin Sentral bus terminal. From there you can take a Grab to your hotel.",hint:"好的，谢谢！",expected:["Got it, thank you!","Larkin Sentral, noted. Thanks!","Thank you!"],keywords:["thank","got","noted"],tips:"Larkin Sentral 是新山的主要巴士站。"}
+]},
+{id:36,icon:"🏨",title:"新山酒店入住",tag:"DAY3 JB",desc:"晚上到了新山，在柑橘酒店（Citrus Hotel）办入住。",npcName:"Front Desk",turns:[
+{npc:"Good evening! Welcome to Citrus Hotel. Checking in?",hint:"是的，有预订。名字周京京。",expected:["Yes, I have a reservation. The name is Zhou Jingjing.","Checking in please. Reservation under Zhou.","Yes, booked under Zhou Jingjing."],keywords:["reservation","zhou","checking"],tips:"有预订 I have a reservation。"},
+{npc:"One night, Superior King Room. Passport please?",hint:"给你护照。问明天怎么去新加坡。",expected:["Here's my passport. How do I get to Singapore from here tomorrow?","Sure, here you go. Can you tell me how to cross to Singapore?","Here it is. What's the best way to get to Singapore tomorrow morning?"],keywords:["passport","singapore","how","tomorrow","get"],tips:"过关去新加坡 cross to Singapore / get to Singapore。"},
+{npc:"You can take a bus from JB Sentral to Woodlands checkpoint. It's about 30 minutes with immigration.",hint:"好的。几点出发比较好？想避开高峰。",expected:["What time should I leave to avoid the rush?","When's the best time to go to avoid crowds?","What time do you suggest to beat the morning rush?"],keywords:["time","avoid","rush","crowd","best"],tips:"避开高峰 avoid the rush / beat the crowds。"}
+]},
+{id:37,icon:"🌙",title:"新山附近散步",tag:"DAY3 晚上",desc:"放下行李，你在酒店附近逛逛。",npcName:"Security Guard / Local",turns:[
+{npc:"Good evening! Are you looking for somewhere to eat?",hint:"是的，附近有什么推荐的地方吗？走路能到的。",expected:["Yes! Any good restaurants nearby? Within walking distance?","I'm looking for dinner. Anything good to eat around here?","Yes, can you recommend somewhere close by?"],keywords:["restaurant","nearby","eat","walking","recommend","close"],tips:"附近 nearby / around here / close by。"},
+{npc:"There's a good food court two blocks away. They have great laksa and rojak.",hint:"laksa和rojak是什么？",expected:["What's laksa and rojak?","I've never tried those. What are they?","Can you describe laksa and rojak?"],keywords:["what","laksa","rojak","describe"],tips:"laksa 是叻沙（咖喱汤面），rojak 是罗惹（水果沙拉配虾酱）。"},
+{npc:"Laksa is a spicy curry noodle soup, very rich. Rojak is a fruit and vegetable salad with sweet shrimp paste. Both are local favorites!",hint:"听起来都好吃，我去试试。怎么走？",expected:["They both sound delicious! How do I get there?","I'll try both! Which way is it?","Sounds great! Can you point me in the right direction?"],keywords:["sound","delicious","how","get","way","direction"],tips:"怎么走 How do I get there? / Which way?"}
+]},
+// ========== DAY 4: 新加坡 ==========
+{id:38,icon:"🛃",title:"新加坡入境",tag:"DAY4 陆路过关",desc:"早上从新山坐巴士过关到新加坡。",npcName:"Immigration Officer",turns:[
+{npc:"Passport please. Where are you entering from?",hint:"从马来西亚过来的。",expected:["Here's my passport. I'm coming from Malaysia.","Here you go. Entering from Malaysia.","From Malaysia, by bus."],keywords:["passport","malaysia","here"],tips:"陆路入境 entering from / coming from。"},
+{npc:"How long will you be in Singapore?",hint:"就一天，今晚就飞回中国。",expected:["Just one day. I have a flight home tonight.","I'm here for the day. Flying out tonight.","One day. My flight leaves at 2 AM."],keywords:["one","day","flight","tonight"],tips:"就一天 just one day / here for the day。"},
+{npc:"Welcome to Singapore. Enjoy your stay.",hint:"谢谢！",expected:["Thank you!","Thanks!","Thank you, I will!"],keywords:["thank"],tips:"简单回 Thank you 即可。"}
+]},
+{id:39,icon:"🚇",title:"新加坡地铁",tag:"DAY4 MRT",desc:"你在新加坡要坐MRT地铁去滨海湾。",npcName:"Station Staff",turns:[
+{npc:"Hi, can I help you?",hint:"想买一张去滨海湾站的地铁票。怎么买？",expected:["I'd like to go to Bayfront station. How do I buy a ticket?","Can you help me buy a ticket to Bayfront?","How do I get a ticket for the MRT to Bayfront?"],keywords:["bayfront","ticket","buy","mrt"],tips:"滨海湾花园最近的站是 Bayfront。"},
+{npc:"You can buy a single trip ticket from the machine over there. Or get an EZ-Link card for multiple trips.",hint:"就坐几次，买单程票就好。怎么操作机器？",expected:["I'll just get single trip tickets. How do I use the machine?","Single trip is fine. Can you show me how the machine works?","Just single tickets please. How does the machine work?"],keywords:["single","trip","machine","how"],tips:"单程票 single trip ticket，储值卡 EZ-Link card。"},
+{npc:"Touch the screen, select your destination, insert cash or card, and take your ticket. Bayfront is on the Downtown Line.",hint:"好的，谢谢！Downtown Line是黄色的对吧？",expected:["Thank you! The Downtown Line is the blue one, right?","Got it, thanks! Which color is the Downtown Line?","Thanks! Is that the blue line?"],keywords:["thank","downtown","line","color","blue"],tips:"Downtown Line 是蓝色线。新加坡地铁线路用颜色区分。"}
+]},
+{id:40,icon:"🌳",title:"滨海湾花园买票",tag:"DAY4 Gardens by the Bay",desc:"上午10点，你来到滨海湾花园。",npcName:"Ticket Staff",turns:[
+{npc:"Welcome to Gardens by the Bay! Tickets for the conservatories?",hint:"买一张花穹和云雾林的联票。",expected:["Yes, one combined ticket for Flower Dome and Cloud Forest please.","One combo ticket for both conservatories.","I'd like a ticket for both, please."],keywords:["combined","combo","both","ticket","one"],tips:"联票 combined ticket / combo ticket。"},
+{npc:"53 Singapore dollars. The Supertree light show is at 7:45 PM, it's free!",hint:"太好了。先看哪个馆比较好？",expected:["Which conservatory should I visit first?","Which one do you recommend seeing first?","Should I start with the Flower Dome or Cloud Forest?"],keywords:["which","first","recommend","start"],tips:"先看哪个 Which should I visit first?"},
+{npc:"Start with the Cloud Forest — the waterfall inside is amazing. Then do the Flower Dome.",hint:"好的，谢谢建议！",expected:["Great advice, thank you!","I'll do that, thanks!","Sounds like a plan! Thank you!"],keywords:["thank","great","advice","plan"],tips:"好建议 Great advice! / Sounds like a plan!"}
+]},
+{id:41,icon:"🌿",title:"花穹参观",tag:"DAY4 Flower Dome",desc:"你在花穹（Flower Dome）里欣赏各种植物。",npcName:"Visitor / Guide",turns:[
+{npc:"Beautiful, isn't it? This is the largest glass greenhouse in the world!",hint:"真的吗？太壮观了！这些是什么花？",expected:["Really? That's incredible! What kind of flowers are these?","Wow, the largest in the world! What flowers are these?","It's amazing! Can you tell me what these flowers are?"],keywords:["incredible","amazing","flowers","what","kind"],tips:"什么种类 What kind of...? / What type of...?"},
+{npc:"These are orchids from Southeast Asia. Singapore's national flower is the Vanda Miss Joaquim orchid.",hint:"好美！可以在这里拍照吗？",expected:["They're gorgeous! Can I take photos in here?","So beautiful! Is photography allowed?","Lovely! Am I allowed to take pictures?"],keywords:["beautiful","gorgeous","photo","picture"],tips:"新加坡国花是卓锦万代兰 Vanda Miss Joaquim。"},
+{npc:"Yes, but no flash please. The best photo spot is by the baobab trees over there.",hint:"谢谢推荐！我去那边拍。",expected:["Thank you for the tip! I'll head over there.","Thanks! I'll check it out.","Great, I'll go take some photos there!"],keywords:["thank","tip","head","check","photo"],tips:"猴面包树 baobab tree。"}
+]},
+{id:42,icon:"🍗",title:"午餐海南鸡饭",tag:"DAY4 午餐",desc:"中午你去吃新加坡最有名的海南鸡饭。",npcName:"Hawker",turns:[
+{npc:"Chicken rice? Steamed or roasted?",hint:"白切鸡，一份。",expected:["Steamed please, one portion.","One steamed chicken rice.","Steamed, one plate please."],keywords:["steamed","one"],tips:"白切鸡 steamed，烧鸡 roasted。"},
+{npc:"Drink? We have iced lemon tea, kopi, barley water.",hint:"来一杯薏米水。",expected:["Barley water please.","I'll have barley water.","One barley water."],keywords:["barley","water"],tips:"薏米水 barley water，新加坡很常见的饮料。"},
+{npc:"8 dollars. Cash or PayNow?",hint:"可以扫码吗？",expected:["Can I scan the QR code?","Do you have a QR code I can scan?","PayNow please. Where's the QR code?"],keywords:["scan","qr","code","paynow"],tips:"扫码付款 scan the QR code。"}
+]},
+{id:43,icon:"🦁",title:"鱼尾狮公园",tag:"DAY4 Merlion Park",desc:"下午2点，你来到鱼尾狮公园拍照。",npcName:"Tourist",turns:[
+{npc:"Hi! Could you take a photo of us with the Merlion?",hint:"没问题！横拍还是竖拍？",expected:["Sure! Landscape or portrait?","Of course! Horizontal or vertical?","Happy to help! Which orientation?"],keywords:["landscape","portrait","horizontal","vertical","sure"],tips:"横拍 landscape，竖拍 portrait。"},
+{npc:"Portrait please! One, two, three... Thank you! Want me to take one for you?",hint:"好的，帮我拍一张，把鱼尾狮和后面的金沙酒店都拍进去。",expected:["Yes please! Can you include both the Merlion and Marina Bay Sands behind me?","Sure! Get the Merlion and the hotel in the background please.","Please get both the Merlion and Marina Bay Sands in the shot!"],keywords:["merlion","marina","bay","sands","background","both"],tips:"拍进去 include in the shot / get in the background。"},
+{npc:"Got it! Great photo! Are you enjoying Singapore?",hint:"非常喜欢！就是太热了。",expected:["I love it! But it's so hot!","Singapore is amazing! Just very hot.","It's wonderful! I just wish it were cooler."],keywords:["love","amazing","hot","wonderful"],tips:"就是太热了 But it's so hot! / I wish it were cooler."}
+]},
+{id:44,icon:"🌈",title:"哈芝巷拍照",tag:"DAY4 Haji Lane",desc:"你来到哈芝巷（Haji Lane），这里是新加坡最文艺的小巷子。",npcName:"Shop Owner",turns:[
+{npc:"Welcome to Haji Lane! Looking for something or just exploring?",hint:"就是来看看壁画和拍照的。这条巷子好有特色！",expected:["Just exploring and taking photos! This street is so colorful and unique!","I'm here for the street art! It's so photogenic.","Just sightseeing. I love the murals here!"],keywords:["exploring","photo","colorful","unique","mural","art"],tips:"有特色 unique / colorful，壁画 mural / street art。"},
+{npc:"Make sure to check out the shops too! We have vintage clothing and local designers.",hint:"好的，我看看。有没有什么新加坡本地设计师的东西？",expected:["Sure! Do you have anything by local Singaporean designers?","I'd love to see local designs. What do you recommend?","Any unique Singapore brands?"],keywords:["local","designer","singapore","brand","recommend"],tips:"本地设计师 local designer，品牌 brand。"},
+{npc:"This tote bag is by a Singaporean artist. Very popular with tourists! 25 dollars.",hint:"好看，买一个。",expected:["It's lovely! I'll take one.","That's cute! One please.","I like it! I'll buy one."],keywords:["lovely","cute","take","buy","one"],tips:"帆布包 tote bag。"}
+]},
+{id:45,icon:"🦀",title:"晚餐辣椒螃蟹",tag:"DAY4 克拉码头",desc:"晚上你在克拉码头（Clarke Quay）吃新加坡招牌菜辣椒螃蟹。",npcName:"Waiter",turns:[
+{npc:"Good evening! Table for one? Here's our menu.",hint:"一个人。你们的辣椒螃蟹多大份的？够一个人吃吗？",expected:["Table for one please. How big is the chili crab portion? Is it enough for one person?","Just me. Is the chili crab too much for one person?","One please. What size is the chili crab? Can one person finish it?"],keywords:["one","chili","crab","big","enough","person"],tips:"辣椒螃蟹 chili crab，够不够吃 Is it enough for one?"},
+{npc:"The small one is perfect for one person. It comes with mantou buns to dip in the sauce.",hint:"好的，来一份小的。再来一份空心菜。",expected:["I'll have the small chili crab and a plate of kangkong.","Small crab please, and stir-fried water spinach.","One small crab and kangkong please."],keywords:["small","crab","kangkong","spinach","water"],tips:"空心菜 kangkong / water spinach，馒头 mantou。"},
+{npc:"Great choices! Any drinks? We have Tiger beer on tap.",hint:"来一杯Tiger啤酒。",expected:["A Tiger beer please!","I'll have a Tiger on tap.","One Tiger beer."],keywords:["tiger","beer"],tips:"Tiger 是新加坡本地啤酒品牌。on tap 是生啤。"},
+{npc:"Here's your food! Enjoy! Use the wet tissues for your hands after the crab.",hint:"看起来太棒了！谢谢。",expected:["This looks incredible! Thank you!","Wow, amazing! Thank you!","It looks so good! Thanks!"],keywords:["incredible","amazing","good","thank"],tips:"吃螃蟹会弄脏手，用湿巾 wet tissues / wet wipes。"}
+]},
+{id:46,icon:"🌃",title:"滨海湾夜景",tag:"DAY4 夜景",desc:"晚上8点，你沿着滨海湾散步看夜景。",npcName:"Local / Tourist",turns:[
+{npc:"The light show is about to start! Have you seen it before?",hint:"没有，第一次看！在哪里看最好？",expected:["No, this is my first time! Where's the best spot to watch?","Never! Where should I stand for the best view?","First time! What's the best viewing spot?"],keywords:["first","time","best","spot","where","view"],tips:"最佳观看位置 best spot / best viewing spot。"},
+{npc:"Right here is great! You can see the whole bay and the laser show reflects on the water.",hint:"太美了！这个灯光秀每天都有吗？",expected:["This is stunning! Does the light show happen every night?","Beautiful! Is this show on every day?","Amazing! Is this a nightly show?"],keywords:["stunning","beautiful","every","night","day","show"],tips:"每天晚上都有 every night / nightly。"},
+{npc:"Yes, every night at 8 and 9 PM. Free to watch!",hint:"太好了，免费的。新加坡的夜景真的很美。",expected:["That's great! Singapore's skyline at night is truly beautiful.","How nice that it's free! The night view here is breathtaking.","Singapore at night is just incredible!"],keywords:["beautiful","incredible","breathtaking","night","singapore","free"],tips:"天际线 skyline，令人窒息的美 breathtaking。"}
+]},
+{id:47,icon:"💎",title:"樟宜机场星耀",tag:"DAY4 Jewel Changi",desc:"晚上10:30，你到了樟宜机场，去星耀樟宜（Jewel）看室内瀑布。",npcName:"Information Staff",turns:[
+{npc:"Welcome to Jewel Changi! Are you here to see the Rain Vortex?",hint:"是的！世界最大的室内瀑布！在哪里？",expected:["Yes! The world's largest indoor waterfall! Where is it?","I'm here for the Rain Vortex! Which floor is it on?","Yes! How do I get to the waterfall?"],keywords:["yes","rain","vortex","waterfall","where","floor"],tips:"星耀瀑布叫 Rain Vortex，是世界最大室内瀑布。"},
+{npc:"You're standing right next to it! Look up! It goes from the top floor all the way down. At night, there's a light and sound show.",hint:"哇太壮观了！灯光秀什么时候？",expected:["Wow, it's spectacular! When is the light show?","This is incredible! What time is the light and sound show?","Amazing! When does the light show start?"],keywords:["spectacular","incredible","amazing","light","show","when","time"],tips:"壮观 spectacular / incredible。"},
+{npc:"Every hour from 7:30 PM to midnight. The next one is in 10 minutes!",hint:"太好了，等一下看完再去登机。谢谢！",expected:["Perfect timing! I'll watch it before my flight. Thank you!","Great, I'll stay for it! Thanks!","I'll catch this one before heading to my gate. Thanks!"],keywords:["perfect","watch","flight","thank","gate"],tips:"来得正好 Perfect timing!"}
+]},
+{id:48,icon:"🛒",title:"机场免税店",tag:"DAY4 免税",desc:"你在免税店给同事买伴手礼。",npcName:"Sales Staff",turns:[
+{npc:"Looking for anything special?",hint:"想买巧克力和茶叶送人。",expected:["I'm looking for chocolates and tea as gifts.","Do you have gift chocolates and tea?","I need some chocolates and tea for my colleagues."],keywords:["chocolate","tea","gift","colleague"],tips:"送人 as gifts / for colleagues。"},
+{npc:"These Merlion chocolates and TWG tea are our bestsellers!",hint:"买5盒巧克力和2盒茶。一共多少？",expected:["I'll take five boxes of chocolates and two boxes of tea. How much total?","Five chocolates and two teas please. What's the total?"],keywords:["five","5","two","2","total","chocolate","tea"],tips:"TWG 是新加坡著名茶叶品牌。"},
+{npc:"That comes to 120 Singapore dollars. Would you like them gift-wrapped?",hint:"好的，帮忙包装。可以分开装吗？",expected:["Yes please! Can you wrap them separately?","Gift wrap please, in separate bags if possible.","Please wrap them. Can they go in separate bags?"],keywords:["wrap","separate","bag","please"],tips:"分开包装 wrap separately / in separate bags。"}
+]},
+{id:49,icon:"💰",title:"机场退税",tag:"DAY4 GST Refund",desc:"你在机场办理消费退税（GST Refund）。",npcName:"Tax Refund Staff",turns:[
+{npc:"Hi, are you here for a GST refund?",hint:"是的。需要什么材料？",expected:["Yes. What documents do I need?","Yes, GST refund please. What do I need to show?","I'd like a tax refund. What's required?"],keywords:["yes","document","need","show","required"],tips:"GST 是新加坡的消费税（Goods and Services Tax）。"},
+{npc:"I need your passport, boarding pass, and the eTRS receipts from the stores.",hint:"都在这里。退税到信用卡还是现金？",expected:["Here's everything. Can I get the refund to my credit card or in cash?","All here. Is the refund by card or cash?","Here you go. What are the refund options?"],keywords:["here","refund","card","cash","option"],tips:"退税方式 refund options / refund by card or cash。"},
+{npc:"You can choose credit card or cash. Card takes 5-10 business days. Cash is immediate but there's a small fee.",hint:"那退到信用卡吧。",expected:["I'll go with credit card then.","Credit card please.","Card is fine, I'll wait for it."],keywords:["credit","card","fine"],tips:"工作日 business days，手续费 fee。"}
+]},
+{id:50,icon:"✈️",title:"登机口等待",tag:"DAY4 登机",desc:"凌晨1:30，你在登机口等待凌晨2点的航班。",npcName:"Gate Staff / Passenger",turns:[
+{npc:"Excuse me, is this the gate for the flight to Beijing?",hint:"你也不确定，说你看看登机牌。",expected:["Let me check my boarding pass... Yes, this should be the right gate.","I think so. Let me double-check my boarding pass.","Hold on, let me look at my ticket... Yes, this is the right gate."],keywords:["check","boarding","pass","right","gate"],tips:"登机牌 boarding pass，登机口 gate。"},
+{npc:"Great, thanks! Is this your first time visiting Singapore?",hint:"第一次来，玩了一天，很累但很开心。",expected:["Yes, first time! I only had one day but I loved it. I'm tired but happy!","First time! It was a quick trip but amazing. Exhausted but worth it!","Yes! Just one day but I saw so much. Tired but happy!"],keywords:["first","time","tired","happy","amazing","loved"],tips:"累但开心 tired but happy / exhausted but worth it。"},
+{npc:"One day? That's impressive! Safe travels home!",hint:"谢谢！你也是。一路平安。",expected:["Thank you! Safe travels to you too!","Thanks! Have a safe flight!","Thank you! You too, safe travels!"],keywords:["thank","safe","travel","flight"],tips:"一路平安 Safe travels! / Have a safe flight!"}
+]}
 ];
 
 // ===================== APP STATE =====================
@@ -558,6 +433,14 @@ let recognition = null;
 let speechSupported = true;
 let micSupported = true;
 let results = {excellent:0, good:0, retry:0, corrections:[]};
+
+function getCompleted() {
+  try { return JSON.parse(localStorage.getItem('travel-eng-done') || '[]'); } catch(e) { return []; }
+}
+function markCompleted(id) {
+  const c = getCompleted();
+  if (!c.includes(id)) { c.push(id); localStorage.setItem('travel-eng-done', JSON.stringify(c)); }
+}
 
 // ===================== INIT =====================
 function init() {
@@ -600,7 +483,12 @@ function renderHome() {
   document.getElementById('backBtn').style.display = 'none';
   document.getElementById('headerTitle').textContent = '旅行英语练习';
   const grid = document.getElementById('scenarioGrid');
-  grid.innerHTML = scenarios.map(s => `
+  const done = getCompleted();
+  const total = scenarios.length;
+  const doneCount = done.length;
+  grid.innerHTML = `<div class="home-progress">已完成 ${doneCount} / ${total} 个场景</div>` + scenarios.map(s => {
+    const isDone = done.includes(s.id);
+    return `
     <div class="scenario-card" onclick="startScenario(${s.id})">
       <div class="scenario-icon">${s.icon}</div>
       <div class="scenario-info">
@@ -608,8 +496,9 @@ function renderHome() {
         <p>${s.desc}</p>
         <span class="scenario-tag">${s.tag} · ${s.turns.length}轮对话</span>
       </div>
-    </div>
-  `).join('');
+      ${isDone ? '<span class="scenario-done">✅</span>' : ''}
+    </div>`;
+  }).join('');
 }
 
 // ===================== CHAT SCREEN =====================
@@ -996,6 +885,7 @@ function scrollToBottom() {
 
 // ===================== RESULTS =====================
 function showResults() {
+  markCompleted(currentScenario.id);
   document.getElementById('chatScreen').style.display = 'none';
   document.getElementById('resultScreen').style.display = '';
   document.getElementById('backBtn').style.display = 'inline-block';
