@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>旅行英语练习 - 新加坡 & 吉隆坡</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f0f2f5;color:#333;min-height:100vh;overflow-x:hidden}
+.header{background:linear-gradient(135deg,#1a73e8,#0d47a1);color:#fff;padding:16px 20px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.header h1{font-size:18px;font-weight:600;flex:1}
+.back-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px 8px;display:none}
+.speed-control{display:flex;align-items:center;gap:6px;font-size:13px}
+.speed-control select{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:4px 8px;font-size:13px}
+.speed-control select option{color:#333;background:#fff}
+
+/* Home Screen */
+.home{padding:16px}
+.home-title{text-align:center;margin:20px 0 8px;font-size:22px;font-weight:700;color:#1a73e8}
+.home-subtitle{text-align:center;color:#666;font-size:14px;margin-bottom:24px}
+.scenario-grid{display:grid;grid-template-columns:1fr;gap:12px;max-width:500px;margin:0 auto}
+.scenario-card{background:#fff;border-radius:16px;padding:16px;cursor:pointer;transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;gap:14px;border:2px solid transparent}
+.scenario-card:active{transform:scale(.97)}
+.scenario-card:hover{border-color:#1a73e8;box-shadow:0 4px 12px rgba(26,115,232,.15)}
+.scenario-icon{font-size:36px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;background:#e8f0fe;border-radius:14px;flex-shrink:0}
+.scenario-info{flex:1}
+.scenario-info h3{font-size:16px;font-weight:600;margin-bottom:4px}
+.scenario-info p{font-size:13px;color:#666;line-height:1.4}
+.scenario-tag{font-size:11px;background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:4px}
+
+/* Chat Screen */
+.chat-screen{display:none;flex-direction:column;height:100vh}
+.scene-intro{background:#fff3e0;padding:12px 16px;font-size:14px;color:#e65100;line-height:1.5;border-bottom:1px solid #ffe0b2}
+.scene-intro b{color:#bf360c}
+.chat-area{flex:1;overflow-y:auto;padding:16px;padding-bottom:180px}
+.chat-bubble{max-width:85%;margin-bottom:12px;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.npc-bubble{display:flex;gap:10px;align-items:flex-start}
+.npc-avatar{width:40px;height:40px;border-radius:50%;background:#1a73e8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.npc-text{background:#fff;border-radius:4px 18px 18px 18px;padding:12px 16px;font-size:15px;line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.08);position:relative}
+.npc-text-hidden{font-style:italic;color:#999;font-size:13px;cursor:pointer}
+.npc-text-hidden:hover{color:#1a73e8}
+.show-text-btn{background:none;border:none;color:#1a73e8;font-size:13px;cursor:pointer;padding:4px 0;margin-top:4px;text-decoration:underline;display:block}
+.npc-name{font-size:12px;color:#888;margin-bottom:4px}
+.replay-btn{background:none;border:none;color:#1a73e8;font-size:20px;cursor:pointer;padding:4px;margin-left:8px;vertical-align:middle}
+
+.user-bubble{display:flex;justify-content:flex-end;gap:10px}
+.user-text{background:#dcf8c6;border-radius:18px 4px 18px 18px;padding:12px 16px;font-size:15px;line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+.hint-box{background:#fff8e1;border:1px solid #ffcc02;border-radius:14px;padding:12px 16px;margin:8px 0 12px;font-size:14px;line-height:1.6}
+.hint-box .hint-label{font-size:12px;color:#f57f17;font-weight:600;margin-bottom:4px}
+
+.correction-box{background:#fff;border-radius:14px;padding:14px 16px;margin:8px 0 12px;font-size:14px;line-height:1.7;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.correction-box.excellent{border-left:4px solid #4caf50}
+.correction-box.good{border-left:4px solid #ff9800}
+.correction-box.retry{border-left:4px solid #f44336}
+.correction-status{font-weight:700;margin-bottom:6px}
+.correction-status.excellent{color:#2e7d32}
+.correction-status.good{color:#e65100}
+.correction-status.retry{color:#c62828}
+.correction-ref{color:#555;margin-top:6px}
+.correction-ref b{color:#1a73e8}
+.correction-tip{background:#f3e5f5;padding:8px 12px;border-radius:8px;margin-top:8px;font-size:13px;color:#6a1b9a}
+.word-correct{color:#2e7d32}
+.word-wrong{color:#c62828;text-decoration:line-through}
+.word-missing{color:#1a73e8;font-weight:600}
+
+/* Bottom Controls */
+.controls{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:12px 16px 28px;box-shadow:0 -2px 12px rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;gap:10px;z-index:99}
+.mic-row{display:flex;align-items:center;gap:16px;width:100%}
+.mic-btn{width:64px;height:64px;border-radius:50%;border:none;background:#f44336;color:#fff;font-size:28px;cursor:pointer;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.mic-btn:active{transform:scale(.9)}
+.mic-btn.recording{animation:pulse 1s infinite;background:#d32f2f}
+.mic-btn:disabled{background:#ccc;cursor:not-allowed}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(244,67,54,.4)}70%{box-shadow:0 0 0 16px rgba(244,67,54,0)}100%{box-shadow:0 0 0 0 rgba(244,67,54,0)}}
+.text-input-row{display:flex;gap:8px;width:100%;align-items:center}
+.text-input-row input{flex:1;border:1px solid #ddd;border-radius:24px;padding:10px 16px;font-size:15px;outline:none}
+.text-input-row input:focus{border-color:#1a73e8}
+.text-input-row button{background:#1a73e8;color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;flex-shrink:0}
+.next-btn{background:#1a73e8;color:#fff;border:none;border-radius:24px;padding:10px 32px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;width:100%}
+.next-btn:active{transform:scale(.97)}
+.next-btn:disabled{background:#ccc;cursor:not-allowed}
+.or-divider{font-size:12px;color:#999}
+.input-mode-toggle{font-size:13px;color:#1a73e8;background:none;border:none;cursor:pointer;text-decoration:underline}
+
+/* Progress */
+.progress-bar{height:3px;background:#e0e0e0;position:relative;margin-top:-3px}
+.progress-fill{height:100%;background:#4caf50;transition:width .3s}
+
+/* Result Screen */
+.result-screen{display:none;padding:24px 16px;text-align:center}
+.result-screen h2{font-size:22px;margin-bottom:16px;color:#1a73e8}
+.result-stats{background:#fff;border-radius:16px;padding:20px;margin:16px auto;max-width:400px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:15px}
+.stat-row:last-child{border:none}
+.stat-label{color:#666}
+.stat-value{font-weight:700}
+.stat-value.green{color:#2e7d32}
+.stat-value.orange{color:#e65100}
+.stat-value.red{color:#c62828}
+.result-btns{display:flex;gap:12px;margin-top:24px;justify-content:center;flex-wrap:wrap}
+.result-btns button{padding:12px 28px;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;border:none}
+.btn-retry{background:#fff;color:#1a73e8;border:2px solid #1a73e8 !important}
+.btn-home{background:#1a73e8;color:#fff}
+
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <button class="back-btn" id="backBtn" onclick="confirmExit()">&#8592;</button>
+  <h1 id="headerTitle">旅行英语练习</h1>
+  <div class="speed-control">
+    <label>语速</label>
+    <select id="speedSelect" onchange="setSpeechRate(this.value)">
+      <option value="0.6">慢</option>
+      <option value="0.8">较慢</option>
+      <option value="1">正常</option>
+      <option value="1.2">快</option>
+    </select>
+  </div>
+</div>
+
+<div id="homeScreen" class="home">
+  <div class="home-title">新加坡 & 吉隆坡</div>
+  <div class="home-subtitle">选择一个场景开始练习听说</div>
+  <div class="scenario-grid" id="scenarioGrid"></div>
+</div>
+
+<div id="chatScreen" class="chat-screen">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="scene-intro" id="sceneIntro"></div>
+  <div class="chat-area" id="chatArea"></div>
+  <div class="controls" id="controls">
+    <div class="mic-row" id="micRow">
+      <button class="mic-btn" id="micBtn" onclick="toggleRecording()">&#127908;</button>
+      <div style="flex:1;text-align:center">
+        <div id="micStatus" style="font-size:14px;color:#666">点击麦克风开始说</div>
+      </div>
+    </div>
+    <button class="input-mode-toggle" id="modeToggle" onclick="toggleInputMode()">切换到打字输入</button>
+    <div class="text-input-row hidden" id="textRow">
+      <input type="text" id="textInput" placeholder="输入你的英文回答..." onkeydown="if(event.key==='Enter')submitText()">
+      <button onclick="submitText()">&#10148;</button>
+    </div>
+    <button class="next-btn hidden" id="nextBtn" onclick="nextTurn()">下一句 &#8594;</button>
+  </div>
+</div>
+
+<div id="resultScreen" class="result-screen">
+  <h2>练习完成！</h2>
+  <div class="result-stats" id="resultStats"></div>
+  <div class="result-btns">
+    <button class="btn-retry" onclick="retryScenario()">再练一次</button>
+    <button class="btn-home" onclick="goHome()">返回首页</button>
+  </div>
+</div>
+
+<script>
+// ===================== SCENARIO DATA =====================
+const scenarios = [
+{
+  id:1, icon:"🛬", title:"新加坡入境", tag:"樟宜机场",
+  desc:"你刚抵达新加坡樟宜机场，正在排队过入境检查。",
+  npcName:"Immigration Officer",
+  turns:[
+    {npc:"Good morning. Passport and arrival card, please.",
+     hint:"问好，然后说：给你，这是我的护照和入境卡。",
+     expected:["Good morning. Here you go.","Good morning, here is my passport and arrival card.","Here you are.","Sure, here you go."],
+     keywords:["here","passport"],
+     tips:"'给你' 最地道的说法是 Here you go 或 Here you are，不要说 Give you。"},
+    {npc:"What's the purpose of your visit to Singapore?",
+     hint:"告诉他你来旅游的。",
+     expected:["I'm here for tourism.","I'm here on vacation.","I'm here for a holiday.","I'm traveling.","I'm here to travel.","Tourism.","I'm a tourist."],
+     keywords:["tourism","vacation","holiday","travel","tourist"],
+     tips:"'来旅游' 说 I'm here for tourism / on vacation，不要说 I come to travel。"},
+    {npc:"How long will you be staying?",
+     hint:"告诉他你打算待5天。",
+     expected:["Five days.","I'll be staying for five days.","About five days.","I'm staying for 5 days.","For five days."],
+     keywords:["five","days","5"],
+     tips:"表达停留时间用 for + 时间段，如 for five days。"},
+    {npc:"Where will you be staying?",
+     hint:"告诉他你住在滨海湾金沙酒店。",
+     expected:["I'll be staying at Marina Bay Sands.","At Marina Bay Sands hotel.","Marina Bay Sands.","I'm staying at Marina Bay Sands."],
+     keywords:["marina","bay","sands"],
+     tips:"酒店名用 at + 酒店名，如 at Marina Bay Sands。"},
+    {npc:"Do you have a return ticket?",
+     hint:"说有的，你的回程航班是下周一的。",
+     expected:["Yes, I do. My return flight is next Monday.","Yes, my flight back is on Monday.","Yes, I have a return ticket for next Monday.","Yes I do."],
+     keywords:["yes","monday","return","flight"],
+     tips:"'回程航班' 是 return flight 或 flight back。"}
+  ]
+},
+{
+  id:2, icon:"🚗", title:"打Grab去酒店", tag:"新加坡",
+  desc:"你在樟宜机场打了一辆Grab，司机来接你了。",
+  npcName:"Grab Driver",
+  turns:[
+    {npc:"Hi! Are you heading to Marina Bay Sands?",
+     hint:"确认目的地，说对的。",
+     expected:["Yes, that's right.","Yes, Marina Bay Sands please.","Yes, correct.","That's right, thank you.","Yes please."],
+     keywords:["yes","right","correct","please"],
+     tips:"确认用 That's right / Yes, correct，比单纯 Yes 更自然。"},
+    {npc:"Is this your first time in Singapore?",
+     hint:"说是的，你第一次来，很期待。",
+     expected:["Yes, it's my first time here. I'm very excited.","Yes, this is my first time. I'm looking forward to it.","Yes, first time here.","Yeah, it's my first visit."],
+     keywords:["first","time","excited"],
+     tips:"'第一次来' 说 my first time here / my first visit，不要说 I first come here。"},
+    {npc:"The traffic might be a bit heavy. It should take about 30 minutes. Is that okay?",
+     hint:"说没问题，不着急。",
+     expected:["No problem, I'm not in a hurry.","That's fine, no rush.","Sure, no worries.","That's okay, take your time."],
+     keywords:["no","problem","hurry","fine","rush"],
+     tips:"'不着急' 可以说 no rush / I'm not in a hurry / take your time。"},
+    {npc:"Here we are. Marina Bay Sands. Have a great stay!",
+     hint:"谢谢他，说一路开得很好。",
+     expected:["Thank you so much! You're a great driver.","Thanks a lot! Have a nice day.","Thank you, it was a pleasant ride.","Thanks! You too."],
+     keywords:["thank","thanks"],
+     tips:"下车时别忘了感谢司机，Thank you / Thanks a lot 都可以。"}
+  ]
+},
+{
+  id:3, icon:"🏨", title:"酒店入住", tag:"滨海湾金沙",
+  desc:"你到了滨海湾金沙酒店前台，准备办理入住。",
+  npcName:"Front Desk",
+  turns:[
+    {npc:"Welcome to Marina Bay Sands. Do you have a reservation?",
+     hint:"说有预订，名字是你的名字。",
+     expected:["Yes, I have a reservation under the name Zhou Jingjing.","Yes, I booked a room. The name is Zhou.","I have a reservation. Last name Zhou.","Yes, the reservation is under Zhou."],
+     keywords:["yes","reservation","name","zhou"],
+     tips:"预订查询说 under the name + 名字 或 under + 姓氏。"},
+    {npc:"May I see your passport or ID, please?",
+     hint:"把护照递给他。",
+     expected:["Sure, here you go.","Here is my passport.","Of course, here you are.","Here it is."],
+     keywords:["here","passport","sure"],
+     tips:"递东西的固定表达：Here you go / Here you are。"},
+    {npc:"You've booked a Deluxe Room for five nights. Would you prefer a city view or a garden view?",
+     hint:"你想要城景房，能看到滨海湾的那种。",
+     expected:["City view, please. I'd love to see the bay.","I'd like a city view please.","City view would be great.","Can I get the city view? I want to see Marina Bay."],
+     keywords:["city","view"],
+     tips:"表达偏好用 I'd like / I'd prefer / I'd love to。"},
+    {npc:"Breakfast is included and served from 7 to 10 AM at the restaurant on the 55th floor. Here's your key card. Room 4218.",
+     hint:"谢谢，问一下WiFi密码是什么。",
+     expected:["Thank you. What's the WiFi password?","Thanks. Could you tell me the WiFi password?","Thank you! By the way, what's the WiFi password?","Great, thanks. What's the WiFi password please?"],
+     keywords:["thank","wifi","password"],
+     tips:"问WiFi密码：What's the WiFi password? 或更礼貌的 Could you tell me the WiFi password?"},
+    {npc:"The WiFi password is on your key card holder. The infinity pool on the rooftop is open until 10 PM. Enjoy your stay!",
+     hint:"太好了，谢谢！问一下游泳池需要带房卡吗。",
+     expected:["Wonderful, thank you! Do I need my key card to access the pool?","Great, thanks! Do I need to bring my room key for the pool?","Thank you! Is the key card required for the pool?"],
+     keywords:["thank","key","card","pool"],
+     tips:"询问是否需要某物：Do I need...? / Is ... required?"}
+  ]
+},
+{
+  id:4, icon:"🍗", title:"牛车水吃鸡饭", tag:"新加坡美食",
+  desc:"你来到了牛车水的麦士威熟食中心，想吃正宗的海南鸡饭。",
+  npcName:"Hawker Stall Owner",
+  turns:[
+    {npc:"Hello! What can I get for you today?",
+     hint:"说你想要一份海南鸡饭。",
+     expected:["I'd like a Hainanese chicken rice, please.","Can I have one chicken rice please?","One Hainanese chicken rice please.","I'll have the chicken rice."],
+     keywords:["chicken","rice","please"],
+     tips:"点餐常用：I'd like... / Can I have... / I'll have...，记得加 please。"},
+    {npc:"Sure. Would you like steamed or roasted chicken?",
+     hint:"你想要白切鸡（蒸的那种）。",
+     expected:["Steamed, please.","I'll have the steamed chicken.","Steamed chicken please.","I'd like steamed."],
+     keywords:["steamed","steam"],
+     tips:"白切鸡对应 steamed chicken，烧鸡是 roasted chicken。"},
+    {npc:"Anything to drink? We have iced lemon tea, kopi, and sugarcane juice.",
+     hint:"要一杯冰柠檬茶。",
+     expected:["I'll have an iced lemon tea, please.","Iced lemon tea please.","Can I get an iced lemon tea?","One iced lemon tea."],
+     keywords:["iced","lemon","tea"],
+     tips:"新加坡的咖啡叫 kopi（马来语），甘蔗汁是 sugarcane juice。"},
+    {npc:"That'll be 8 Singapore dollars. Cash or card?",
+     hint:"问能不能用手机支付（比如PayNow）。",
+     expected:["Can I pay by phone? Do you accept PayNow?","Do you take mobile payment?","Can I use PayNow?","Is mobile payment okay?"],
+     keywords:["pay","paynow","mobile","phone"],
+     tips:"手机支付：mobile payment / pay by phone。新加坡常用 PayNow 和 GrabPay。"},
+    {npc:"Yes, we accept PayNow. Just scan the QR code here. Enjoy your meal!",
+     hint:"谢谢！",
+     expected:["Thank you! It looks delicious.","Thanks a lot!","Thank you, I can't wait to try it!","Great, thanks!"],
+     keywords:["thank","thanks"],
+     tips:"看起来好吃可以说 It looks delicious / It looks amazing。"}
+  ]
+},
+{
+  id:5, icon:"🛍️", title:"乌节路购物", tag:"新加坡购物",
+  desc:"你在乌节路的ION商场逛街，看中了一件衣服。",
+  npcName:"Shop Assistant",
+  turns:[
+    {npc:"Hi there! Welcome. Is there anything you're looking for today?",
+     hint:"说你想看看T恤。",
+     expected:["Hi, I'm looking for some T-shirts.","I'd like to look at some T-shirts please.","Yes, I'm interested in T-shirts.","I want to check out your T-shirts."],
+     keywords:["t-shirt","looking","tshirt","shirt"],
+     tips:"'我想看看…' 用 I'm looking for... 或 I'd like to look at..."},
+    {npc:"Sure! What size are you? We have S, M, L, and XL.",
+     hint:"你穿M码。",
+     expected:["I'm a medium.","Medium, please.","I wear medium.","I'm size M.","M please."],
+     keywords:["medium","m"],
+     tips:"说尺码：I'm a medium / I wear size M / I'm size M。"},
+    {npc:"Here are a few options. Would you like to try them on? The fitting room is right over there.",
+     hint:"好的，问一下可以试几件。",
+     expected:["Yes please. How many can I take in?","Sure, I'd like to try them on. How many items can I bring in?","Yes, how many can I try on at once?","I'd love to. How many are allowed in the fitting room?"],
+     keywords:["how","many","try"],
+     tips:"试衣服说 try on / try them on，fitting room 是试衣间。"},
+    {npc:"You can take up to five items. Take your time!",
+     hint:"试完后出来，说这件蓝色的很合适，想买。问一下多少钱。",
+     expected:["I like this blue one, it fits well. How much is it?","This blue one fits perfectly. How much does it cost?","I'll take the blue one. What's the price?","The blue one fits great. How much?"],
+     keywords:["blue","how","much","fit"],
+     tips:"合适说 it fits well / it fits perfectly，问价格用 How much is it?"},
+    {npc:"That one is 89 dollars. We're having a 20% off promotion this week. So it'll be about 71 dollars.",
+     hint:"太好了，你要了。问能不能退税。",
+     expected:["Great, I'll take it. Can I get a tax refund?","Wonderful. I'd like to buy it. Is tax refund available?","I'll take it! Do you offer tourist tax refund?","Nice, I want this one. Can I do tax-free shopping?"],
+     keywords:["take","tax","refund"],
+     tips:"退税说 tax refund / tax-free shopping。新加坡消费满一定金额可退 GST。"}
+  ]
+},
+{
+  id:6, icon:"🎢", title:"环球影城买票", tag:"圣淘沙",
+  desc:"你来到了新加坡圣淘沙的环球影城，准备买门票。",
+  npcName:"Ticket Counter Staff",
+  turns:[
+    {npc:"Hello! Welcome to Universal Studios Singapore. How can I help you?",
+     hint:"说你想买一张成人票。",
+     expected:["Hi, I'd like one adult ticket please.","I want to buy one adult admission ticket.","One adult ticket please.","Can I get one adult ticket?"],
+     keywords:["one","adult","ticket"],
+     tips:"买票说 I'd like + 数量 + ticket(s)，成人票 adult ticket。"},
+    {npc:"Sure. Would you like a one-day pass or an express pass? The express pass lets you skip the lines.",
+     hint:"什么是快速通行证？贵多少？",
+     expected:["What exactly is the express pass? How much more does it cost?","How much extra is the express pass?","What's the difference in price between them?","Can you explain the express pass? How much more is it?"],
+     keywords:["how","much","express","more","price"],
+     tips:"问差价用 How much more / How much extra，问区别用 What's the difference。"},
+    {npc:"The one-day pass is 82 dollars, and the express pass is an additional 50 dollars. With the express, you only wait about 5 minutes per ride.",
+     hint:"还是买普通票就好，怕排队就早点去。",
+     expected:["I'll just go with the regular one-day pass.","I'll take the standard pass. I'll just get there early to avoid the lines.","Just the one-day pass is fine, thanks.","I think the regular pass will do. I'll go early to beat the crowds."],
+     keywords:["one-day","regular","standard","pass"],
+     tips:"'就要普通票' 说 I'll go with the regular one / Just the standard pass。避开人群说 beat the crowds。"},
+    {npc:"Good choice! The park opens at 10 AM. Here's your ticket. Have a wonderful day!",
+     hint:"谢谢！问一下里面可以带水和食物进去吗。",
+     expected:["Thank you! Can I bring water and food inside?","Thanks! Am I allowed to bring in my own food and drinks?","Thank you! Is outside food and drink allowed?","Thanks! Can I take food and water into the park?"],
+     keywords:["bring","food","water","drink"],
+     tips:"能不能带东西进去：Can I bring...? / Am I allowed to bring...? / Is ... allowed?"}
+  ]
+},
+{
+  id:7, icon:"🛬", title:"吉隆坡入境", tag:"KLIA机场",
+  desc:"你从新加坡飞到了吉隆坡KLIA机场，准备过马来西亚入境关。",
+  npcName:"Immigration Officer",
+  turns:[
+    {npc:"Passport, please. Where are you coming from?",
+     hint:"递上护照，说你从新加坡过来的。",
+     expected:["Here's my passport. I'm coming from Singapore.","Here you go. I flew in from Singapore.","Sure. I'm arriving from Singapore."],
+     keywords:["passport","singapore","here"],
+     tips:"从哪来用 I'm coming from... / I flew in from...。"},
+    {npc:"How long will you stay in Malaysia?",
+     hint:"你打算待3天。",
+     expected:["Three days.","I'll be staying for three days.","About three days.","For three days.","I plan to stay for 3 days."],
+     keywords:["three","3","days"],
+     tips:"表达停留时间可以简短回答 Three days 即可。"},
+    {npc:"What will you be doing here?",
+     hint:"说旅游，想去看双子塔和吃当地美食。",
+     expected:["I'm here for sightseeing. I want to visit the Petronas Towers and try local food.","Tourism. I'd like to see the Petronas Twin Towers and enjoy Malaysian cuisine.","I'm a tourist. I plan to visit Petronas Towers and try the local food."],
+     keywords:["petronas","tower","food","tourist","sightseeing"],
+     tips:"观光用 sightseeing，双子塔叫 Petronas Twin Towers 或 Petronas Towers。"},
+    {npc:"Where will you be staying?",
+     hint:"说你订了武吉免登的一家酒店。",
+     expected:["I'll be staying at a hotel in Bukit Bintang.","I booked a hotel in Bukit Bintang area.","At a hotel in Bukit Bintang.","I have a hotel reservation in Bukit Bintang."],
+     keywords:["hotel","bukit","bintang"],
+     tips:"武吉免登 Bukit Bintang 是吉隆坡最热闹的商圈，读音近似 boo-kit bin-tang。"}
+  ]
+},
+{
+  id:8, icon:"🏙️", title:"双子塔观景", tag:"吉隆坡地标",
+  desc:"你来到了吉隆坡双子塔（Petronas Twin Towers），想上观景台。",
+  npcName:"Ticket Staff",
+  turns:[
+    {npc:"Welcome to Petronas Twin Towers. Would you like to visit the Skybridge and Observation Deck?",
+     hint:"是的，买一张成人票。问一下要排多久的队。",
+     expected:["Yes, one adult ticket please. How long is the wait?","Yes please. One ticket. How long do I need to wait?","I'd like one ticket. What's the waiting time?","One adult please. Is there a long queue?"],
+     keywords:["one","ticket","wait","long","queue"],
+     tips:"排队时间用 How long is the wait? 或 What's the waiting time?"},
+    {npc:"The current wait is about 20 minutes. Your time slot will be at 3:30 PM. That's 85 ringgit.",
+     hint:"好的没问题，可以刷卡吗？",
+     expected:["Sounds good. Can I pay by card?","That's fine. Do you accept credit cards?","Okay, no problem. Can I use a credit card?","Sure. Do you take Visa?"],
+     keywords:["card","pay","credit","visa"],
+     tips:"刷卡说 pay by card / use a credit card。马来西亚货币是 ringgit（令吉）。"},
+    {npc:"Yes, we accept all major credit cards. Here's your ticket. Please be at Gate A by 3:25 PM.",
+     hint:"谢谢，问能不能在上面拍照。",
+     expected:["Thank you. Is photography allowed up there?","Thanks! Can I take photos on the observation deck?","Thank you. Am I allowed to take pictures?","Thanks! Can we take photos up there?"],
+     keywords:["photo","picture","photography","take"],
+     tips:"能不能拍照：Is photography allowed? / Can I take photos?"},
+    {npc:"Yes, you can take photos, but no tripods or selfie sticks allowed. Enjoy the view!",
+     hint:"好的明白了，谢谢！",
+     expected:["Got it, thank you!","Understood, thanks!","Okay, no problem. Thank you!","Alright, thanks a lot!"],
+     keywords:["got","understood","thank","okay"],
+     tips:"'明白了' 用 Got it / Understood，比 I know 更地道。"}
+  ]
+},
+{
+  id:9, icon:"🍖", title:"阿罗街吃肉骨茶", tag:"吉隆坡美食",
+  desc:"你来到了吉隆坡著名的阿罗街（Jalan Alor），想尝尝当地的肉骨茶。",
+  npcName:"Waiter",
+  turns:[
+    {npc:"Welcome! Table for how many?",
+     hint:"一个人，问有没有位子。",
+     expected:["Just one, please. Do you have a table available?","Table for one please.","Just me. Is there a table available?","One person. Do you have any seats?"],
+     keywords:["one","table","available","seat"],
+     tips:"一个人用餐说 Table for one / Just one / Just me。"},
+    {npc:"Sure, please have a seat here. Here's the menu. Our specialty is Bak Kut Teh.",
+     hint:"太好了，就是来吃肉骨茶的！推荐什么搭配？",
+     expected:["That's exactly what I came for! What do you recommend to go with it?","I'd love to try the Bak Kut Teh! What sides do you recommend?","Yes, I want the Bak Kut Teh. What else goes well with it?","I'm here for the Bak Kut Teh! Any recommended side dishes?"],
+     keywords:["bak","kut","teh","recommend"],
+     tips:"推荐搭配用 What do you recommend to go with it? / What sides do you recommend?"},
+    {npc:"I'd recommend our fried dough sticks and braised tofu. Also, a bowl of rice. Would you like to add those?",
+     hint:"好的，全都要。再来一杯中国茶。",
+     expected:["Yes, I'll have all of those. And a Chinese tea please.","Sure, add all of them. Can I also get a Chinese tea?","Yes please, all of those. And one Chinese tea.","Sounds great, I'll take them all. Plus a Chinese tea please."],
+     keywords:["all","chinese","tea","yes"],
+     tips:"'全都要' 说 I'll have all of those / I'll take them all。油条是 fried dough sticks，卤豆腐是 braised tofu。"},
+    {npc:"Great choices! Your food will be ready in about 10 minutes.",
+     hint:"吃完了觉得很好吃，问能不能打包一份带走。",
+     expected:["That was delicious! Can I get another one to go?","It was amazing! Can I order one more for takeaway?","So good! I'd like to take another portion to go please.","Really tasty! Can I have one more to take away?"],
+     keywords:["delicious","go","takeaway","take","another","amazing"],
+     tips:"打包/带走说 to go / for takeaway / to take away。再来一份说 another one / one more。"},
+    {npc:"Of course! One more Bak Kut Teh to go. That'll be 58 ringgit in total.",
+     hint:"好的，可以用现金付吗？有没有找零？你递给他100块。",
+     expected:["Sure, can I pay in cash? Here's 100 ringgit.","I'll pay cash. Here's a hundred.","Cash is fine? Here, 100 ringgit.","Can I pay with cash? I have a 100 ringgit note."],
+     keywords:["cash","100","hundred","pay"],
+     tips:"付现金说 pay in cash / pay with cash。"}
+  ]
+},
+{
+  id:10, icon:"🛒", title:"樟宜机场免税店", tag:"回程购物",
+  desc:"旅行结束，你在樟宜机场候机，逛免税店买些伴手礼。",
+  npcName:"Sales Staff",
+  turns:[
+    {npc:"Hi! Are you looking for anything in particular?",
+     hint:"说你想给朋友带点巧克力作为礼物。",
+     expected:["Yes, I'm looking for some chocolates as gifts for my friends.","I'd like to buy some chocolate gifts for friends.","I want to get some chocolates for my friends back home.","Hi, I need some chocolates as souvenirs for friends."],
+     keywords:["chocolate","gift","friend","souvenir"],
+     tips:"伴手礼可以说 gifts / souvenirs。'给朋友带' 用 for my friends。"},
+    {npc:"We have a great selection of local chocolates and international brands. How many people are you buying for?",
+     hint:"大概5个人，有没有什么套装推荐？",
+     expected:["About five people. Do you have any gift sets you'd recommend?","Around 5. Are there any gift sets or bundle deals?","Five people. What gift sets do you have?","For about five friends. Any recommended sets?"],
+     keywords:["five","5","set","gift","recommend"],
+     tips:"套装说 gift set / bundle。推荐用 Do you have any ... you'd recommend?"},
+    {npc:"This sampler box is very popular. It has twelve different flavors. It's 25 dollars each, or buy three get one free.",
+     hint:"太好了，买三送一很划算。那我买4盒。",
+     expected:["That's a great deal! I'll take four boxes then.","Buy three get one free? That's a good deal. I'll get four.","Nice! I'll buy four boxes, so I get one free right?","Great value. Four boxes please."],
+     keywords:["four","4","deal","box","great"],
+     tips:"'买三送一很划算' 说 That's a great deal / That's good value. 'deal' 常用来表示优惠。"},
+    {npc:"Wonderful! That's 75 dollars total after the promotion. Would you like me to wrap them as gifts?",
+     hint:"好的，请帮忙包装。问一下可不可以分开装袋。",
+     expected:["Yes please, gift wrap them. Can you put them in separate bags?","Please wrap them. Could I get separate bags for each?","Yes, please wrap them as gifts. Can they go in separate bags?","Gift wrap please! And could you bag them separately?"],
+     keywords:["wrap","separate","bag"],
+     tips:"礼物包装说 gift wrap，分开装袋说 put in separate bags / bag them separately。"}
+  ]
+}
+];
+
+// ===================== APP STATE =====================
+let currentScenario = null;
+let currentTurn = 0;
+let speechRate = 0.8;
+let isRecording = false;
+let recognition = null;
+let speechSupported = true;
+let micSupported = true;
+let results = {excellent:0, good:0, retry:0, corrections:[]};
+
+// ===================== INIT =====================
+function init() {
+  checkSpeechSupport();
+  loadSpeechRate();
+  renderHome();
+}
+
+function checkSpeechSupport() {
+  if (!('speechSynthesis' in window)) speechSupported = false;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    micSupported = false;
+  } else {
+    recognition = new SR();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 3;
+    recognition.onresult = handleSpeechResult;
+    recognition.onerror = e => {
+      isRecording = false;
+      updateMicUI();
+      if (e.error === 'no-speech') {
+        document.getElementById('micStatus').textContent = '没有检测到声音，请再试一次';
+      } else if (e.error === 'not-allowed') {
+        document.getElementById('micStatus').textContent = '请允许麦克风权限';
+      } else {
+        document.getElementById('micStatus').textContent = '识别出错，请重试或切换到打字';
+      }
+    };
+    recognition.onend = () => { isRecording = false; updateMicUI(); };
+  }
+}
+
+// ===================== HOME SCREEN =====================
+function renderHome() {
+  document.getElementById('homeScreen').style.display = '';
+  document.getElementById('chatScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('backBtn').style.display = 'none';
+  document.getElementById('headerTitle').textContent = '旅行英语练习';
+  const grid = document.getElementById('scenarioGrid');
+  grid.innerHTML = scenarios.map(s => `
+    <div class="scenario-card" onclick="startScenario(${s.id})">
+      <div class="scenario-icon">${s.icon}</div>
+      <div class="scenario-info">
+        <h3>${s.title}</h3>
+        <p>${s.desc}</p>
+        <span class="scenario-tag">${s.tag} · ${s.turns.length}轮对话</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===================== CHAT SCREEN =====================
+function startScenario(id) {
+  currentScenario = scenarios.find(s => s.id === id);
+  currentTurn = 0;
+  results = {excellent:0, good:0, retry:0, corrections:[]};
+
+  document.getElementById('homeScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('chatScreen').style.display = 'flex';
+  document.getElementById('backBtn').style.display = 'inline-block';
+  document.getElementById('headerTitle').textContent = currentScenario.title;
+  document.getElementById('sceneIntro').innerHTML = `<b>${currentScenario.icon} ${currentScenario.title}</b> — ${currentScenario.desc}`;
+  document.getElementById('chatArea').innerHTML = '';
+  updateProgress();
+  showCurrentTurn();
+}
+
+function showCurrentTurn() {
+  const turn = currentScenario.turns[currentTurn];
+  const chat = document.getElementById('chatArea');
+
+  // NPC bubble
+  const npcDiv = document.createElement('div');
+  npcDiv.className = 'chat-bubble';
+  const initials = currentScenario.npcName.split(' ').map(w=>w[0]).join('');
+  const npcId = 'npc-text-' + currentTurn;
+  npcDiv.innerHTML = `
+    <div class="npc-bubble">
+      <div class="npc-avatar">${initials}</div>
+      <div>
+        <div class="npc-name">${currentScenario.npcName}</div>
+        <div class="npc-text">
+          <span id="${npcId}" style="display:none">${turn.npc}</span>
+          <span class="npc-text-hidden" id="${npcId}-placeholder" onclick="toggleNpcText('${npcId}')">&#128276; 听不懂？点击显示原文</span>
+          <button class="replay-btn" onclick="speakNPC()" title="重新播放">&#128264;</button>
+        </div>
+      </div>
+    </div>
+  `;
+  chat.appendChild(npcDiv);
+
+  // Hint
+  const hintDiv = document.createElement('div');
+  hintDiv.className = 'chat-bubble';
+  hintDiv.innerHTML = `<div class="hint-box"><div class="hint-label">&#128161; 中文提示</div>${turn.hint}</div>`;
+  chat.appendChild(hintDiv);
+
+  scrollToBottom();
+  speakNPC();
+  resetControls();
+}
+
+function speakNPC() {
+  if (!speechSupported) return;
+  const turn = currentScenario.turns[currentTurn];
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(turn.npc);
+  u.lang = 'en-US';
+  u.rate = speechRate;
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Samantha'))
+    || voices.find(v => v.lang.startsWith('en-US'))
+    || voices.find(v => v.lang.startsWith('en'));
+  if (enVoice) u.voice = enVoice;
+  window.speechSynthesis.speak(u);
+}
+
+// ===================== SPEECH RECOGNITION =====================
+function toggleNpcText(id) {
+  const text = document.getElementById(id);
+  const placeholder = document.getElementById(id + '-placeholder');
+  if (text.style.display === 'none') {
+    text.style.display = '';
+    placeholder.textContent = '🔔 点击隐藏原文';
+  } else {
+    text.style.display = 'none';
+    placeholder.textContent = '🔔 听不懂？点击显示原文';
+  }
+}
+
+function revealCurrentNpcText() {
+  const id = 'npc-text-' + currentTurn;
+  const text = document.getElementById(id);
+  const placeholder = document.getElementById(id + '-placeholder');
+  if (text) text.style.display = '';
+  if (placeholder) placeholder.textContent = '🔔 点击隐藏原文';
+}
+
+function toggleRecording() {
+  if (!micSupported) {
+    document.getElementById('micStatus').textContent = '你的浏览器不支持语音识别，请使用打字输入';
+    toggleInputMode();
+    return;
+  }
+  if (isRecording) {
+    recognition.stop();
+    isRecording = false;
+  } else {
+    try {
+      recognition.start();
+      isRecording = true;
+      document.getElementById('micStatus').textContent = '正在听你说...';
+    } catch(e) {
+      document.getElementById('micStatus').textContent = '请稍后再试';
+    }
+  }
+  updateMicUI();
+}
+
+function updateMicUI() {
+  const btn = document.getElementById('micBtn');
+  btn.classList.toggle('recording', isRecording);
+}
+
+function handleSpeechResult(e) {
+  const texts = [];
+  for (let i = 0; i < e.results[0].length; i++) {
+    texts.push(e.results[0][i].transcript);
+  }
+  processUserResponse(texts[0], texts);
+}
+
+function toggleInputMode() {
+  const micRow = document.getElementById('micRow');
+  const textRow = document.getElementById('textRow');
+  const toggle = document.getElementById('modeToggle');
+  if (textRow.classList.contains('hidden')) {
+    textRow.classList.remove('hidden');
+    micRow.classList.add('hidden');
+    toggle.textContent = '切换到语音输入';
+  } else {
+    textRow.classList.add('hidden');
+    micRow.classList.remove('hidden');
+    toggle.textContent = '切换到打字输入';
+  }
+}
+
+function submitText() {
+  const input = document.getElementById('textInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  processUserResponse(text, [text]);
+}
+
+// ===================== RESPONSE ANALYSIS =====================
+function processUserResponse(mainText, alternatives) {
+  const turn = currentScenario.turns[currentTurn];
+  const chat = document.getElementById('chatArea');
+
+  // Reveal NPC text after user responds
+  revealCurrentNpcText();
+
+  // User bubble
+  const userDiv = document.createElement('div');
+  userDiv.className = 'chat-bubble';
+  userDiv.innerHTML = `<div class="user-bubble"><div class="user-text">${mainText}</div></div>`;
+  chat.appendChild(userDiv);
+
+  // Analyze
+  const analysis = analyzeResponse(mainText, alternatives, turn);
+
+  // Correction bubble
+  const corrDiv = document.createElement('div');
+  corrDiv.className = 'chat-bubble';
+  let statusClass, statusText;
+  if (analysis.score >= 0.8) {
+    statusClass = 'excellent'; statusText = '&#9989; 非常好！';
+    results.excellent++;
+  } else if (analysis.score >= 0.5) {
+    statusClass = 'good'; statusText = '&#128076; 不错，可以更好：';
+    results.good++;
+  } else {
+    statusClass = 'retry'; statusText = '&#128172; 再看看参考表达：';
+    results.retry++;
+  }
+
+  let corrHTML = `<div class="correction-box ${statusClass}">`;
+  corrHTML += `<div class="correction-status ${statusClass}">${statusText}</div>`;
+
+  if (analysis.score < 1.0) {
+    corrHTML += `<div class="correction-ref"><b>参考回答：</b>${analysis.bestMatch}</div>`;
+    if (analysis.yourIssues.length > 0) {
+      corrHTML += `<div class="correction-ref" style="margin-top:4px"><b>你说的：</b>${analysis.highlighted}</div>`;
+    }
+  }
+
+  if (turn.tips) {
+    corrHTML += `<div class="correction-tip">&#128218; ${turn.tips}</div>`;
+  }
+  corrHTML += '</div>';
+  corrDiv.innerHTML = corrHTML;
+  chat.appendChild(corrDiv);
+
+  results.corrections.push({turn: currentTurn, score: analysis.score, user: mainText, ref: analysis.bestMatch});
+
+  // Show next button
+  document.getElementById('micRow').classList.add('hidden');
+  document.getElementById('textRow').classList.add('hidden');
+  document.getElementById('modeToggle').classList.add('hidden');
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.classList.remove('hidden');
+  nextBtn.textContent = currentTurn < currentScenario.turns.length - 1 ? '下一句 →' : '查看结果 →';
+  nextBtn.disabled = false;
+
+  scrollToBottom();
+}
+
+function analyzeResponse(mainText, alternatives, turn) {
+  const normalize = s => s.toLowerCase().replace(/[.,!?;:'"]/g, '').replace(/\s+/g,' ').trim();
+  const mainNorm = normalize(mainText);
+
+  let bestMatch = turn.expected[0];
+  let bestScore = 0;
+
+  for (const alt of alternatives) {
+    const altNorm = normalize(alt);
+    for (const exp of turn.expected) {
+      const expNorm = normalize(exp);
+      const score = computeScore(altNorm, expNorm, turn.keywords);
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = exp;
+      }
+    }
+  }
+
+  // Also check main text against all expected
+  for (const exp of turn.expected) {
+    const expNorm = normalize(exp);
+    const score = computeScore(mainNorm, expNorm, turn.keywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = exp;
+    }
+  }
+
+  // Highlight issues
+  const {highlighted, issues} = highlightDiff(mainNorm, normalize(bestMatch));
+
+  return {score: bestScore, bestMatch, highlighted, yourIssues: issues};
+}
+
+function computeScore(userText, expected, keywords) {
+  if (userText === expected) return 1.0;
+
+  const userWords = userText.split(/\s+/).filter(Boolean);
+  const expWords = expected.split(/\s+/).filter(Boolean);
+
+  // Word overlap (Jaccard-like)
+  const userSet = new Set(userWords);
+  const expSet = new Set(expWords);
+  const intersection = [...userSet].filter(w => expSet.has(w));
+  const union = new Set([...userSet, ...expSet]);
+  const jaccard = intersection.length / union.size;
+
+  // Keyword match bonus
+  let keywordScore = 0;
+  if (keywords && keywords.length > 0) {
+    const matched = keywords.filter(k => userText.includes(k.toLowerCase()));
+    keywordScore = matched.length / keywords.length;
+  }
+
+  // Word order similarity (LCS ratio)
+  const lcsLen = lcs(userWords, expWords);
+  const orderScore = lcsLen / Math.max(userWords.length, expWords.length, 1);
+
+  // Combine scores
+  return jaccard * 0.35 + keywordScore * 0.35 + orderScore * 0.3;
+}
+
+function lcs(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, () => new Array(n+1).fill(0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
+  return dp[m][n];
+}
+
+function highlightDiff(userNorm, expectedNorm) {
+  const userWords = userNorm.split(/\s+/).filter(Boolean);
+  const expWords = expectedNorm.split(/\s+/).filter(Boolean);
+  const expSet = new Set(expWords);
+  const userSet = new Set(userWords);
+  const issues = [];
+
+  const highlighted = userWords.map(w => {
+    if (expSet.has(w)) return `<span class="word-correct">${w}</span>`;
+    issues.push(w);
+    return `<span class="word-wrong">${w}</span>`;
+  }).join(' ');
+
+  const missing = expWords.filter(w => !userSet.has(w));
+  const missingHTML = missing.length > 0
+    ? ' <span class="word-missing">[缺少: ' + missing.join(', ') + ']</span>'
+    : '';
+
+  return {highlighted: highlighted + missingHTML, issues};
+}
+
+// ===================== NAVIGATION =====================
+function nextTurn() {
+  currentTurn++;
+  updateProgress();
+  if (currentTurn >= currentScenario.turns.length) {
+    showResults();
+  } else {
+    showCurrentTurn();
+    resetControls();
+  }
+}
+
+function resetControls() {
+  const micRow = document.getElementById('micRow');
+  const textRow = document.getElementById('textRow');
+  const toggle = document.getElementById('modeToggle');
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.classList.add('hidden');
+  toggle.classList.remove('hidden');
+
+  if (micSupported) {
+    micRow.classList.remove('hidden');
+    textRow.classList.add('hidden');
+    toggle.textContent = '切换到打字输入';
+    document.getElementById('micStatus').textContent = '点击麦克风开始说';
+  } else {
+    micRow.classList.add('hidden');
+    textRow.classList.remove('hidden');
+    toggle.textContent = '切换到语音输入';
+  }
+}
+
+function updateProgress() {
+  const total = currentScenario ? currentScenario.turns.length : 1;
+  const pct = ((currentTurn) / total * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function confirmExit() {
+  if (currentScenario && currentTurn < currentScenario.turns.length) {
+    if (!confirm('确定退出当前练习吗？进度不会保存。')) return;
+  }
+  goHome();
+}
+
+function goHome() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  if (isRecording && recognition) { recognition.stop(); isRecording = false; }
+  renderHome();
+}
+
+function setSpeechRate(val) {
+  speechRate = parseFloat(val);
+  try { localStorage.setItem('travel-eng-speed', val); } catch(e) {}
+}
+
+function loadSpeechRate() {
+  try {
+    const saved = localStorage.getItem('travel-eng-speed');
+    if (saved) {
+      speechRate = parseFloat(saved);
+      document.getElementById('speedSelect').value = saved;
+    }
+  } catch(e) {}
+}
+
+function scrollToBottom() {
+  const chat = document.getElementById('chatArea');
+  setTimeout(() => chat.scrollTop = chat.scrollHeight, 100);
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+  document.getElementById('chatScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = '';
+  document.getElementById('backBtn').style.display = 'inline-block';
+
+  const total = results.excellent + results.good + results.retry;
+  const pct = Math.round(results.excellent / total * 100);
+
+  let html = `
+    <div class="stat-row"><span class="stat-label">场景</span><span class="stat-value">${currentScenario.title}</span></div>
+    <div class="stat-row"><span class="stat-label">总对话轮数</span><span class="stat-value">${total}</span></div>
+    <div class="stat-row"><span class="stat-label">&#9989; 完美</span><span class="stat-value green">${results.excellent}</span></div>
+    <div class="stat-row"><span class="stat-label">&#128076; 不错</span><span class="stat-value orange">${results.good}</span></div>
+    <div class="stat-row"><span class="stat-label">&#128172; 需改进</span><span class="stat-value red">${results.retry}</span></div>
+    <div class="stat-row"><span class="stat-label">准确率</span><span class="stat-value ${pct>=80?'green':pct>=50?'orange':'red'}">${pct}%</span></div>
+  `;
+
+  if (results.corrections.filter(c=>c.score<0.8).length > 0) {
+    html += '<div style="text-align:left;margin-top:16px;font-size:14px;font-weight:600;color:#666">需要改进的句子：</div>';
+    results.corrections.filter(c=>c.score<0.8).forEach(c => {
+      html += `<div style="text-align:left;margin-top:8px;font-size:13px;line-height:1.5;padding:8px 0;border-bottom:1px solid #f0f0f0">
+        <div style="color:#c62828">你说的：${c.user}</div>
+        <div style="color:#1a73e8">参考：${c.ref}</div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('resultStats').innerHTML = html;
+}
+
+function retryScenario() {
+  if (currentScenario) startScenario(currentScenario.id);
+}
+
+// ===================== VOICE INIT =====================
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  window.speechSynthesis.getVoices();
+}
+
+init();
+</script>
+</body>
+</html>
