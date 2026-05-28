@@ -42,8 +42,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .npc-text-hidden:hover{color:#1a73e8}
 .show-text-btn{background:none;border:none;color:#1a73e8;font-size:13px;cursor:pointer;padding:4px 0;margin-top:4px;text-decoration:underline;display:block}
 .npc-name{font-size:12px;color:#888;margin-bottom:4px}
-.play-btn{background:#1a73e8;color:#fff;border:none;border-radius:24px;padding:10px 20px;font-size:15px;cursor:pointer;margin-top:8px;display:inline-flex;align-items:center;gap:8px}
-.play-btn:active{background:#0d47a1}
 .replay-btn{background:none;border:none;color:#1a73e8;font-size:20px;cursor:pointer;padding:4px;margin-left:8px;vertical-align:middle}
 
 .user-bubble{display:flex;justify-content:flex-end;gap:10px}
@@ -472,7 +470,6 @@ let results = {excellent:0, good:0, retry:0, corrections:[]};
 // ===================== INIT =====================
 function init() {
   checkSpeechSupport();
-  initTTS();
   loadSpeechRate();
   renderHome();
 }
@@ -559,7 +556,6 @@ function showCurrentTurn() {
           <span class="npc-text-hidden" id="${npcId}-placeholder" onclick="toggleNpcText('${npcId}')">&#128276; 听不懂？点击显示原文</span>
           <button class="replay-btn" onclick="speakNPC()" title="重新播放">&#128264;</button>
         </div>
-        <button class="play-btn" onclick="speakNPC()">&#128266; 点击播放</button>
       </div>
     </div>
   `;
@@ -572,50 +568,23 @@ function showCurrentTurn() {
   chat.appendChild(hintDiv);
 
   scrollToBottom();
+  speakNPC();
   resetControls();
 }
 
-let ttsReady = false;
-function initTTS() {
-  if (!('speechSynthesis' in window)) return;
-  const voices = speechSynthesis.getVoices();
-  if (voices.length > 0) { ttsReady = true; return; }
-  speechSynthesis.onvoiceschanged = () => {
-    ttsReady = true;
-    speechSynthesis.getVoices();
-  };
-}
-
 function speakNPC() {
+  if (!speechSupported) return;
   const turn = currentScenario.turns[currentTurn];
-  const text = turn.npc;
-
-  // Method 1: Web Speech API (works on most devices)
-  if ('speechSynthesis' in window) {
-    speechSynthesis.cancel();
-    setTimeout(() => {
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US';
-      u.rate = speechRate;
-      const voices = speechSynthesis.getVoices();
-      const enVoice = voices.find(v => v.lang === 'en-US')
-        || voices.find(v => v.lang.startsWith('en'));
-      if (enVoice) u.voice = enVoice;
-      u.onerror = () => speakNPCFallback(text);
-      speechSynthesis.speak(u);
-    }, 150);
-    return;
-  }
-  speakNPCFallback(text);
-}
-
-function speakNPCFallback(text) {
-  const encoded = encodeURIComponent(text);
-  if (window._npcAudio) window._npcAudio.pause();
-  window._npcAudio = new Audio('https://dict.youdao.com/dictvoice?audio=' + encoded + '&type=0');
-  window._npcAudio.play().catch(() => {
-    alert('你的浏览器不支持语音播放，请在设置中检查：\n\n安卓：设置 → 系统 → 语言 → 文字转语音 → 确认已安装Google TTS引擎并下载英语语音包\n\n或换用 Chrome 浏览器打开本页面');
-  });
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(turn.npc);
+  u.lang = 'en-US';
+  u.rate = speechRate;
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Samantha'))
+    || voices.find(v => v.lang.startsWith('en-US'))
+    || voices.find(v => v.lang.startsWith('en'));
+  if (enVoice) u.voice = enVoice;
+  window.speechSynthesis.speak(u);
 }
 
 // ===================== SPEECH RECOGNITION =====================
