@@ -572,6 +572,11 @@ function speakNPC() {
   speakEnglish(currentScenario.turns[currentTurn].npc);
 }
 
+function speakRef(id) {
+  const el = document.getElementById(id);
+  if (el) speakEnglish(el.textContent);
+}
+
 function speakEnglish(text) {
   if (!speechSupported) return;
   window.speechSynthesis.cancel();
@@ -713,12 +718,15 @@ function processUserResponse(mainText, alternatives) {
   let corrHTML = `<div class="correction-box ${statusClass}">`;
   corrHTML += `<div class="correction-status ${statusClass}">${statusText}</div>`;
 
-  const refEscaped = analysis.bestMatch.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-  if (analysis.score >= 0.8 && analysis.score < 1.0) {
+  const refId = 'ref-' + Date.now();
+  if (analysis.score >= 1.0) {
+    corrHTML += `<div class="correction-ref" style="color:#2e7d32">完美！和参考答案完全一致。</div>`;
+    corrHTML += `<div class="correction-ref"><span id="${refId}" style="display:none">${analysis.bestMatch}</span><button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264; 听参考发音</button></div>`;
+  } else if (analysis.score >= 0.8) {
     corrHTML += `<div class="correction-ref" style="color:#2e7d32">你的表达没问题！以下是另一种常见说法供参考：</div>`;
-    corrHTML += `<div class="correction-ref"><b>参考：</b>${analysis.bestMatch} <button class="play-ref-btn" onclick="speakEnglish('${refEscaped}')" title="播放参考答案">&#128264;</button></div>`;
-  } else if (analysis.score < 0.8) {
-    corrHTML += `<div class="correction-ref"><b>参考回答：</b>${analysis.bestMatch} <button class="play-ref-btn" onclick="speakEnglish('${refEscaped}')" title="播放参考答案">&#128264;</button></div>`;
+    corrHTML += `<div class="correction-ref"><b>参考：</b><span id="${refId}">${analysis.bestMatch}</span> <button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264;</button></div>`;
+  } else {
+    corrHTML += `<div class="correction-ref"><b>参考回答：</b><span id="${refId}">${analysis.bestMatch}</span> <button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264;</button></div>`;
     if (analysis.yourIssues.length > 0) {
       corrHTML += `<div class="correction-ref" style="margin-top:4px"><b>你说的：</b>${analysis.highlighted}</div>`;
     }
@@ -865,6 +873,8 @@ function resetControls() {
   nextBtn.classList.add('hidden');
   toggle.classList.remove('hidden');
 
+  document.getElementById('stopBtn').classList.add('hidden');
+  document.getElementById('micBtn').classList.remove('hidden');
   if (micSupported) {
     micRow.classList.remove('hidden');
     textRow.classList.add('hidden');
