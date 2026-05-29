@@ -460,31 +460,29 @@ function checkSpeechSupport() {
   if (!SR) {
     micSupported = false;
   } else {
-    recognition = new SR();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 3;
-    recognition.onresult = handleSpeechResult;
-    recognition.onerror = e => {
-      isRecording = false;
-      document.getElementById('stopBtn').classList.add('hidden');
-      document.getElementById('micBtn').classList.remove('hidden');
-      updateMicUI();
-      if (e.error === 'no-speech') {
-        document.getElementById('micStatus').textContent = '没有检测到声音，请再试一次';
-      } else if (e.error === 'not-allowed') {
-        document.getElementById('micStatus').textContent = '请允许麦克风权限';
-      } else {
-        document.getElementById('micStatus').textContent = '识别出错，请重试或切换到打字';
-      }
-    };
-    recognition.onend = () => {
-      isRecording = false;
-      document.getElementById('stopBtn').classList.add('hidden');
-      document.getElementById('micBtn').classList.remove('hidden');
-      updateMicUI();
-    };
+    createRecognition();
   }
+}
+
+function createRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 3;
+  recognition.onresult = handleSpeechResult;
+  recognition.onerror = e => {
+    isRecording = false;
+    document.getElementById('stopBtn').classList.add('hidden');
+    document.getElementById('micBtn').classList.remove('hidden');
+    updateMicUI();
+  };
+  recognition.onend = () => {
+    isRecording = false;
+    document.getElementById('stopBtn').classList.add('hidden');
+    document.getElementById('micBtn').classList.remove('hidden');
+    updateMicUI();
+  };
 }
 
 // ===================== HOME SCREEN =====================
@@ -615,17 +613,21 @@ function startRecording() {
     toggleInputMode();
     return;
   }
+  gotResult = false;
   try {
-    gotResult = false;
     recognition.start();
-    isRecording = true;
-    document.getElementById('micStatus').textContent = '正在听你说...';
-    document.getElementById('micBtn').classList.add('hidden');
-    document.getElementById('stopBtn').classList.remove('hidden');
-    updateMicUI();
   } catch(e) {
-    document.getElementById('micStatus').textContent = '录音启动失败，请稍等再点';
+    createRecognition();
+    try { recognition.start(); } catch(e2) {
+      document.getElementById('micStatus').textContent = '录音启动失败，请刷新页面';
+      return;
+    }
   }
+  isRecording = true;
+  document.getElementById('micStatus').textContent = '正在听你说...';
+  document.getElementById('micBtn').classList.add('hidden');
+  document.getElementById('stopBtn').classList.remove('hidden');
+  updateMicUI();
 }
 
 function stopRecording() {
