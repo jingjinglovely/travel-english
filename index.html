@@ -437,6 +437,7 @@ let recognition = null;
 let speechSupported = true;
 let micSupported = true;
 let results = {excellent:0, good:0, retry:0, corrections:[]};
+let gotResult = false;
 
 function getCompleted() {
   try { return JSON.parse(localStorage.getItem('travel-eng-done') || '[]'); } catch(e) { return []; }
@@ -481,6 +482,9 @@ function checkSpeechSupport() {
       isRecording = false;
       document.getElementById('stopBtn').classList.add('hidden');
       document.getElementById('micBtn').classList.remove('hidden');
+      if (!gotResult) {
+        document.getElementById('micStatus').textContent = '没有识别到内容，请再试一次或切换打字输入';
+      }
       updateMicUI();
     };
   }
@@ -614,6 +618,7 @@ function startRecording() {
   } catch(ignore) {}
   setTimeout(() => {
     try {
+      gotResult = false;
       recognition.start();
       isRecording = true;
       document.getElementById('micStatus').textContent = '正在听你说...';
@@ -642,6 +647,7 @@ function updateMicUI() {
 }
 
 function handleSpeechResult(e) {
+  gotResult = true;
   const texts = [];
   for (let i = 0; i < e.results[0].length; i++) {
     texts.push(e.results[0][i].transcript);
