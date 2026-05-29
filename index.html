@@ -479,10 +479,11 @@ function checkSpeechSupport() {
       }
     };
     recognition.onend = () => {
+      const wasRecording = isRecording;
       isRecording = false;
       document.getElementById('stopBtn').classList.add('hidden');
       document.getElementById('micBtn').classList.remove('hidden');
-      if (!gotResult) {
+      if (wasRecording && !gotResult) {
         document.getElementById('micStatus').textContent = '没有识别到内容，请再试一次或切换打字输入';
       }
       updateMicUI();
