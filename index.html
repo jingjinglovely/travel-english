@@ -614,14 +614,12 @@ function startRecording() {
     return;
   }
   gotResult = false;
+  createRecognition();
   try {
     recognition.start();
   } catch(e) {
-    createRecognition();
-    try { recognition.start(); } catch(e2) {
-      document.getElementById('micStatus').textContent = '录音启动失败，请刷新页面';
-      return;
-    }
+    document.getElementById('micStatus').textContent = '录音启动失败，请刷新页面';
+    return;
   }
   isRecording = true;
   document.getElementById('micStatus').textContent = '正在听你说...';
