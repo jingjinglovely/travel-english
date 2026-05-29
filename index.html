@@ -520,6 +520,7 @@ function startScenario(id) {
   document.getElementById('homeScreen').style.display = 'none';
   document.getElementById('resultScreen').style.display = 'none';
   document.getElementById('chatScreen').style.display = 'flex';
+  document.getElementById('controls').style.display = '';
   document.getElementById('backBtn').style.display = 'inline-block';
   document.getElementById('headerTitle').textContent = currentScenario.title;
   document.getElementById('sceneIntro').innerHTML = `<b>${currentScenario.icon} ${currentScenario.title}</b> — ${currentScenario.desc}`;
@@ -638,6 +639,7 @@ function stopRecording() {
   updateMicUI();
   setTimeout(() => {
     if (!gotResult) {
+      gotResult = true;
       processUserResponse('(没有识别到)', ['']);
     }
   }, 500);
@@ -927,11 +929,12 @@ function scrollToBottom() {
 function showResults() {
   markCompleted(currentScenario.id);
   document.getElementById('chatScreen').style.display = 'none';
+  document.getElementById('controls').style.display = 'none';
   document.getElementById('resultScreen').style.display = '';
   document.getElementById('backBtn').style.display = 'inline-block';
 
   const total = results.excellent + results.good + results.retry;
-  const pct = Math.round(results.excellent / total * 100);
+  const pct = total > 0 ? Math.round(results.excellent / total * 100) : 0;
 
   let html = `
     <div class="stat-row"><span class="stat-label">场景</span><span class="stat-value">${currentScenario.title}</span></div>
