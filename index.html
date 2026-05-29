@@ -479,13 +479,9 @@ function checkSpeechSupport() {
       }
     };
     recognition.onend = () => {
-      const wasRecording = isRecording;
       isRecording = false;
       document.getElementById('stopBtn').classList.add('hidden');
       document.getElementById('micBtn').classList.remove('hidden');
-      if (wasRecording && !gotResult) {
-        processUserResponse('(没有识别到)', ['']);
-      }
       updateMicUI();
     };
   }
@@ -639,8 +635,12 @@ function stopRecording() {
   isRecording = false;
   document.getElementById('stopBtn').classList.add('hidden');
   document.getElementById('micBtn').classList.remove('hidden');
-  document.getElementById('micStatus').textContent = '点击麦克风开始说';
   updateMicUI();
+  setTimeout(() => {
+    if (!gotResult) {
+      processUserResponse('(没有识别到)', ['']);
+    }
+  }, 500);
 }
 
 function updateMicUI() {
