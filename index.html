@@ -927,17 +927,20 @@ function scrollToBottom() {
 
 // ===================== RESULTS =====================
 function showResults() {
-  markCompleted(currentScenario.id);
+  try {
+    markCompleted(currentScenario.id);
+  } catch(e) {}
   document.getElementById('chatScreen').style.display = 'none';
   document.getElementById('controls').style.display = 'none';
-  document.getElementById('resultScreen').style.display = '';
+  document.getElementById('resultScreen').style.display = 'block';
   document.getElementById('backBtn').style.display = 'inline-block';
 
   const total = results.excellent + results.good + results.retry;
   const pct = total > 0 ? Math.round(results.excellent / total * 100) : 0;
+  const title = currentScenario ? currentScenario.title : '未知';
 
   let html = `
-    <div class="stat-row"><span class="stat-label">场景</span><span class="stat-value">${currentScenario.title}</span></div>
+    <div class="stat-row"><span class="stat-label">场景</span><span class="stat-value">${title}</span></div>
     <div class="stat-row"><span class="stat-label">总对话轮数</span><span class="stat-value">${total}</span></div>
     <div class="stat-row"><span class="stat-label">&#9989; 完美</span><span class="stat-value green">${results.excellent}</span></div>
     <div class="stat-row"><span class="stat-label">&#128076; 不错</span><span class="stat-value orange">${results.good}</span></div>
@@ -945,13 +948,14 @@ function showResults() {
     <div class="stat-row"><span class="stat-label">准确率</span><span class="stat-value ${pct>=80?'green':pct>=50?'orange':'red'}">${pct}%</span></div>
   `;
 
-  if (results.corrections.filter(c=>c.score<0.8).length > 0) {
+  const needFix = results.corrections.filter(c => c.score < 0.8);
+  if (needFix.length > 0) {
     html += '<div style="text-align:left;margin-top:16px;font-size:14px;font-weight:600;color:#666">需要改进的句子：</div>';
-    results.corrections.filter(c=>c.score<0.8).forEach(c => {
-      html += `<div style="text-align:left;margin-top:8px;font-size:13px;line-height:1.5;padding:8px 0;border-bottom:1px solid #f0f0f0">
-        <div style="color:#c62828">你说的：${c.user}</div>
-        <div style="color:#1a73e8">参考：${c.ref}</div>
-      </div>`;
+    needFix.forEach(c => {
+      html += '<div style="text-align:left;margin-top:8px;font-size:13px;line-height:1.5;padding:8px 0;border-bottom:1px solid #f0f0f0">';
+      html += '<div style="color:#c62828">你说的：' + c.user + '</div>';
+      html += '<div style="color:#1a73e8">参考：' + c.ref + '</div>';
+      html += '</div>';
     });
   }
 
