@@ -610,15 +610,20 @@ function startRecording() {
     return;
   }
   try {
-    recognition.start();
-    isRecording = true;
-    document.getElementById('micStatus').textContent = '正在听你说...';
-    document.getElementById('micBtn').classList.add('hidden');
-    document.getElementById('stopBtn').classList.remove('hidden');
-  } catch(e) {
-    document.getElementById('micStatus').textContent = '请稍后再试';
-  }
-  updateMicUI();
+    recognition.abort();
+  } catch(ignore) {}
+  setTimeout(() => {
+    try {
+      recognition.start();
+      isRecording = true;
+      document.getElementById('micStatus').textContent = '正在听你说...';
+      document.getElementById('micBtn').classList.add('hidden');
+      document.getElementById('stopBtn').classList.remove('hidden');
+    } catch(e) {
+      document.getElementById('micStatus').textContent = '录音启动失败：' + (e.message || e);
+    }
+    updateMicUI();
+  }, 200);
 }
 
 function stopRecording() {
