@@ -137,7 +137,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
   <div class="chat-area" id="chatArea"></div>
   <div class="controls" id="controls">
     <div class="mic-row" id="micRow">
-      <button class="mic-btn" id="micBtn" onclick="toggleRecording()">&#127908;</button>
+      <button class="mic-btn" id="micBtn" onclick="startRec()">&#127908;</button>
+      <button class="mic-btn" id="stopBtn" onclick="stopRec()" style="display:none;background:#d32f2f">&#9632;</button>
       <div style="flex:1;text-align:center">
         <div id="micStatus" style="font-size:14px;color:#666">点击麦克风开始说</div>
       </div>
@@ -433,6 +434,7 @@ let recognition = null;
 let speechSupported = true;
 let micSupported = true;
 let results = {excellent:0, good:0, retry:0, corrections:[]};
+let spokenText = '';
 
 function getCompleted() {
   try { return JSON.parse(localStorage.getItem('travel-eng-done') || '[]'); } catch(e) { return []; }
@@ -457,6 +459,7 @@ function checkSpeechSupport() {
   } else {
     recognition = new SR();
     recognition.lang = 'en-US';
+    recognition.continuous = true;
     recognition.interimResults = false;
     recognition.maxAlternatives = 3;
     recognition.onresult = handleSpeechResult;
@@ -590,38 +593,42 @@ function revealCurrentNpcText() {
   if (placeholder) placeholder.textContent = '🔔 点击隐藏原文';
 }
 
-function toggleRecording() {
+function startRec() {
   if (!micSupported) {
     document.getElementById('micStatus').textContent = '你的浏览器不支持语音识别，请使用打字输入';
     toggleInputMode();
     return;
   }
-  if (isRecording) {
-    recognition.stop();
-    isRecording = false;
-  } else {
-    try {
-      recognition.start();
-      isRecording = true;
-      document.getElementById('micStatus').textContent = '正在听你说...';
-    } catch(e) {
-      document.getElementById('micStatus').textContent = '请稍后再试';
-    }
+  spokenText = '';
+  try {
+    recognition.start();
+    isRecording = true;
+    document.getElementById('micBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = '';
+    document.getElementById('micStatus').textContent = '正在听你说...';
+  } catch(e) {
+    document.getElementById('micStatus').textContent = '请稍后再试';
   }
-  updateMicUI();
 }
 
-function updateMicUI() {
-  const btn = document.getElementById('micBtn');
-  btn.classList.toggle('recording', isRecording);
+function stopRec() {
+  if (recognition) try { recognition.stop(); } catch(e) {}
+  isRecording = false;
+  document.getElementById('stopBtn').style.display = 'none';
+  document.getElementById('micBtn').style.display = '';
+  document.getElementById('micStatus').textContent = '点击麦克风开始说';
+  setTimeout(function() {
+    var text = spokenText || '(没有识别到)';
+    processUserResponse(text, [text]);
+  }, 300);
 }
 
 function handleSpeechResult(e) {
-  const texts = [];
-  for (let i = 0; i < e.results[0].length; i++) {
-    texts.push(e.results[0][i].transcript);
+  var full = '';
+  for (var i = 0; i < e.results.length; i++) {
+    full += e.results[i][0].transcript + ' ';
   }
-  processUserResponse(texts[0], texts);
+  spokenText = full.trim();
 }
 
 function toggleInputMode() {
@@ -833,6 +840,8 @@ function resetControls() {
   nextBtn.classList.add('hidden');
   toggle.classList.remove('hidden');
 
+  document.getElementById('stopBtn').style.display = 'none';
+  document.getElementById('micBtn').style.display = '';
   if (micSupported) {
     micRow.classList.remove('hidden');
     textRow.classList.add('hidden');
