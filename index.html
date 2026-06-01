@@ -109,12 +109,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .btn-retry{background:#fff;color:#1a73e8;border:2px solid #1a73e8 !important}
 .btn-home{background:#1a73e8;color:#fff}
 
+.npc-audio{width:100%;max-width:280px;height:36px;margin-top:6px;display:block}
+.ref-audio{height:32px;margin-top:4px}
 .hidden{display:none !important}
 </style>
 </head>
 <body>
-<audio id="ttsAudio" preload="none"></audio>
-<iframe id="ttsFrame" style="display:none" allow="autoplay"></iframe>
 
 <div class="header">
   <button class="back-btn" id="backBtn" onclick="confirmExit()">&#8592;</button>
@@ -433,10 +433,9 @@ const scenarios = [
 // ===================== APP STATE =====================
 let currentScenario = null;
 let currentTurn = 0;
-let speechRate = 0.8;
+let speechRate = 1;
 let isRecording = false;
 let recognition = null;
-let speechSupported = true;
 let micSupported = true;
 let results = {excellent:0, good:0, retry:0, corrections:[]};
 let gotResult = false;
@@ -458,12 +457,9 @@ function init() {
 }
 
 function checkSpeechSupport() {
-  if (!('speechSynthesis' in window)) speechSupported = false;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
     micSupported = false;
-  } else {
-    createRecognition();
   }
 }
 
@@ -542,6 +538,7 @@ function showCurrentTurn() {
   npcDiv.className = 'chat-bubble';
   const initials = currentScenario.npcName.split(' ').map(w=>w[0]).join('');
   const npcId = 'npc-text-' + currentTurn;
+  const audioUrl = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(turn.npc) + '&type=2';
   npcDiv.innerHTML = `
     <div class="npc-bubble">
       <div class="npc-avatar">${initials}</div>
@@ -550,8 +547,8 @@ function showCurrentTurn() {
         <div class="npc-text">
           <span id="${npcId}" style="display:none">${turn.npc}</span>
           <span class="npc-text-hidden" id="${npcId}-placeholder" onclick="toggleNpcText('${npcId}')">&#128276; 听不懂？点击显示原文</span>
-          <button class="replay-btn" onclick="speakNPC()" title="重新播放">&#128264;</button>
         </div>
+        <audio controls preload="none" class="npc-audio" src="${audioUrl}"></audio>
       </div>
     </div>
   `;
@@ -567,26 +564,6 @@ function showCurrentTurn() {
   resetControls();
 }
 
-function speakNPC() {
-  speakEnglish(currentScenario.turns[currentTurn].npc);
-}
-
-function speakRef(id) {
-  const el = document.getElementById(id);
-  if (el) speakEnglish(el.textContent);
-}
-
-function speakEnglish(text) {
-  const url = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(text) + '&type=2';
-  // 方式1: iframe（绕过安卓跨域限制）
-  const frame = document.getElementById('ttsFrame');
-  frame.src = url;
-  // 方式2: DOM audio 作为备选（桌面端更好控语速）
-  const audio = document.getElementById('ttsAudio');
-  audio.src = url;
-  audio.playbackRate = speechRate;
-  audio.play().catch(()=>{});
-}
 
 // ===================== SPEECH RECOGNITION =====================
 function toggleNpcText(id) {
@@ -721,15 +698,17 @@ function processUserResponse(mainText, alternatives) {
   let corrHTML = `<div class="correction-box ${statusClass}">`;
   corrHTML += `<div class="correction-status ${statusClass}">${statusText}</div>`;
 
-  const refId = 'ref-' + Date.now();
+  const refAudioUrl = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(analysis.bestMatch) + '&type=2';
   if (analysis.score >= 1.0) {
     corrHTML += `<div class="correction-ref" style="color:#2e7d32">完美！和参考答案完全一致。</div>`;
-    corrHTML += `<div class="correction-ref"><span id="${refId}" style="display:none">${analysis.bestMatch}</span><button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264; 听参考发音</button></div>`;
+    corrHTML += `<div class="correction-ref"><audio controls preload="none" class="ref-audio" src="${refAudioUrl}"></audio></div>`;
   } else if (analysis.score >= 0.8) {
     corrHTML += `<div class="correction-ref" style="color:#2e7d32">你的表达没问题！以下是另一种常见说法供参考：</div>`;
-    corrHTML += `<div class="correction-ref"><b>参考：</b><span id="${refId}">${analysis.bestMatch}</span> <button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264;</button></div>`;
+    corrHTML += `<div class="correction-ref"><b>参考：</b>${analysis.bestMatch}</div>`;
+    corrHTML += `<div class="correction-ref"><audio controls preload="none" class="ref-audio" src="${refAudioUrl}"></audio></div>`;
   } else {
-    corrHTML += `<div class="correction-ref"><b>参考回答：</b><span id="${refId}">${analysis.bestMatch}</span> <button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264;</button></div>`;
+    corrHTML += `<div class="correction-ref"><b>参考回答：</b>${analysis.bestMatch}</div>`;
+    corrHTML += `<div class="correction-ref"><audio controls preload="none" class="ref-audio" src="${refAudioUrl}"></audio></div>`;
     if (analysis.yourIssues.length > 0) {
       corrHTML += `<div class="correction-ref" style="margin-top:4px"><b>你说的：</b>${analysis.highlighted}</div>`;
     }
@@ -904,7 +883,6 @@ function confirmExit() {
 }
 
 function goHome() {
-  window.speechSynthesis && window.speechSynthesis.cancel();
   if (isRecording && recognition) { recognition.stop(); isRecording = false; }
   renderHome();
 }
@@ -968,12 +946,6 @@ function showResults() {
 
 function retryScenario() {
   if (currentScenario) startScenario(currentScenario.id);
-}
-
-// ===================== VOICE INIT =====================
-if ('speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-  window.speechSynthesis.getVoices();
 }
 
 init();
