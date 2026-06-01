@@ -468,38 +468,20 @@ function createRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
   recognition.lang = 'en-US';
-  recognition.continuous = true;
-  recognition.interimResults = true;
+  recognition.interimResults = false;
   recognition.maxAlternatives = 3;
   recognition.onresult = handleSpeechResult;
-  recognition.onerror = function(e) {
-    if (e.error === 'no-speech') {
-      document.getElementById('micStatus').textContent = '没听清，继续说...';
-    } else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-      recogFatal = true;
-      document.getElementById('micStatus').textContent = '请允许麦克风权限';
-    } else if (e.error === 'aborted') {
-      // 由我们自己调用 stop() 触发，忽略
-    } else {
-      recogFatal = true;
-      document.getElementById('micStatus').textContent = '识别出错(' + e.error + ')，可改用打字';
-    }
-  };
-  recognition.onend = function() {
-    if (finalSubmit) {
-      finalSubmit = false;
-      submitSpokenText();
-      return;
-    }
-    if (isRecording && !recogFatal) {
-      // 引擎因静音/超时自动结束，但用户还没点停止 → 保留已识别内容并重新开始
-      committedText = spokenText;
-      try { recognition.start(); } catch(e) {}
-      return;
-    }
+  recognition.onerror = e => {
     isRecording = false;
     document.getElementById('stopBtn').classList.add('hidden');
     document.getElementById('micBtn').classList.remove('hidden');
+    updateMicUI();
+  };
+  recognition.onend = () => {
+    isRecording = false;
+    document.getElementById('stopBtn').classList.add('hidden');
+    document.getElementById('micBtn').classList.remove('hidden');
+    updateMicUI();
   };
 }
 
@@ -626,21 +608,13 @@ function revealCurrentNpcText() {
   if (placeholder) placeholder.textContent = '🔔 点击隐藏原文';
 }
 
-var spokenText = '';
-var committedText = '';
-var finalSubmit = false;
-var recogFatal = false;
-
 function startRecording() {
   if (!micSupported) {
     document.getElementById('micStatus').textContent = '你的浏览器不支持语音识别，请使用打字输入';
     toggleInputMode();
     return;
   }
-  spokenText = '';
-  committedText = '';
-  finalSubmit = false;
-  recogFatal = false;
+  gotResult = false;
   createRecognition();
   try {
     recognition.start();
@@ -652,38 +626,37 @@ function startRecording() {
   document.getElementById('micStatus').textContent = '正在听你说...';
   document.getElementById('micBtn').classList.add('hidden');
   document.getElementById('stopBtn').classList.remove('hidden');
+  updateMicUI();
 }
 
 function stopRecording() {
-  finalSubmit = true;
   if (recognition) {
     try { recognition.stop(); } catch(ignore) {}
   }
   isRecording = false;
   document.getElementById('stopBtn').classList.add('hidden');
   document.getElementById('micBtn').classList.remove('hidden');
-  document.getElementById('micStatus').textContent = '点击麦克风开始说';
-  // 正常情况由 onend 在最终结果到齐后提交；兜底：万一 onend 没触发，1.2秒后强制提交
-  setTimeout(function() {
-    if (finalSubmit) {
-      finalSubmit = false;
-      submitSpokenText();
+  updateMicUI();
+  setTimeout(() => {
+    if (!gotResult) {
+      gotResult = true;
+      processUserResponse('(没有识别到)', ['']);
     }
-  }, 1200);
+  }, 500);
 }
 
-function submitSpokenText() {
-  var text = spokenText || '(没有识别到)';
-  processUserResponse(text, [text]);
+function updateMicUI() {
+  const btn = document.getElementById('micBtn');
+  btn.classList.toggle('recording', isRecording);
 }
 
 function handleSpeechResult(e) {
-  var full = '';
-  for (var i = 0; i < e.results.length; i++) {
-    full += e.results[i][0].transcript + ' ';
+  gotResult = true;
+  const texts = [];
+  for (let i = 0; i < e.results[0].length; i++) {
+    texts.push(e.results[0][i].transcript);
   }
-  var cur = full.trim();
-  spokenText = (committedText ? committedText + ' ' + cur : cur).trim();
+  processUserResponse(texts[0], texts);
 }
 
 function toggleInputMode() {
