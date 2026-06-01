@@ -692,11 +692,17 @@ function processUserResponse(mainText, alternatives) {
   let corrHTML = `<div class="correction-box ${statusClass}">`;
   corrHTML += `<div class="correction-status ${statusClass}">${statusText}</div>`;
 
-  if (analysis.score >= 0.8 && analysis.score < 1.0) {
+  const refAudio = 'audio/ref_' + currentScenario.id + '_' + currentTurn + '.mp3';
+  if (analysis.score >= 1.0) {
+    corrHTML += `<div class="correction-ref" style="color:#2e7d32">完美！和参考答案完全一致。</div>`;
+    corrHTML += `<div class="correction-ref"><audio controls preload="none" src="${refAudio}" style="height:32px"></audio></div>`;
+  } else if (analysis.score >= 0.8) {
     corrHTML += `<div class="correction-ref" style="color:#2e7d32">你的表达没问题！以下是另一种常见说法供参考：</div>`;
     corrHTML += `<div class="correction-ref"><b>参考：</b>${analysis.bestMatch}</div>`;
+    corrHTML += `<div class="correction-ref"><audio controls preload="none" src="${refAudio}" style="height:32px"></audio></div>`;
   } else if (analysis.score < 0.8) {
     corrHTML += `<div class="correction-ref"><b>参考回答：</b>${analysis.bestMatch}</div>`;
+    corrHTML += `<div class="correction-ref"><audio controls preload="none" src="${refAudio}" style="height:32px"></audio></div>`;
     if (analysis.yourIssues.length > 0) {
       corrHTML += `<div class="correction-ref" style="margin-top:4px"><b>你说的：</b>${analysis.highlighted}</div>`;
     }
