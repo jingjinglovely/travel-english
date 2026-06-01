@@ -114,6 +114,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 </head>
 <body>
 <audio id="ttsAudio" preload="none"></audio>
+<iframe id="ttsFrame" style="display:none" allow="autoplay"></iframe>
 
 <div class="header">
   <button class="back-btn" id="backBtn" onclick="confirmExit()">&#8592;</button>
@@ -516,11 +517,6 @@ function renderHome() {
 
 // ===================== CHAT SCREEN =====================
 function startScenario(id) {
-  // 用户点击时解锁音频（安卓要求）
-  const audio = document.getElementById('ttsAudio');
-  audio.play().catch(()=>{});
-  audio.pause();
-
   currentScenario = scenarios.find(s => s.id === id);
   currentTurn = 0;
   results = {excellent:0, good:0, retry:0, corrections:[]};
@@ -581,10 +577,15 @@ function speakRef(id) {
 }
 
 function speakEnglish(text) {
+  const url = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(text) + '&type=2';
+  // 方式1: iframe（绕过安卓跨域限制）
+  const frame = document.getElementById('ttsFrame');
+  frame.src = url;
+  // 方式2: DOM audio 作为备选（桌面端更好控语速）
   const audio = document.getElementById('ttsAudio');
-  audio.src = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(text) + '&type=2';
+  audio.src = url;
   audio.playbackRate = speechRate;
-  audio.play();
+  audio.play().catch(()=>{});
 }
 
 // ===================== SPEECH RECOGNITION =====================
