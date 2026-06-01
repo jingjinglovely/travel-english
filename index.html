@@ -440,6 +440,7 @@ let whisperPipeline = null;
 let whisperLoading = false;
 let mediaRecorder = null;
 let audioChunks = [];
+let speechApiEmptyCount = 0;
 
 function getCompleted() {
   try { return JSON.parse(localStorage.getItem('travel-eng-done') || '[]'); } catch(e) { return []; }
@@ -472,18 +473,33 @@ function checkSpeechSupport() {
     recognition.interimResults = false;
     recognition.maxAlternatives = 3;
     recognition.onresult = handleSpeechResult;
-    recognition.onerror = e => {
+    recognition.onerror = function(e) {
       isRecording = false;
-      updateMicUI();
+      document.getElementById('stopBtn').style.display = 'none';
+      document.getElementById('micBtn').style.display = '';
       if (e.error === 'no-speech') {
         document.getElementById('micStatus').textContent = '没有检测到声音，请再试一次';
       } else if (e.error === 'not-allowed') {
         document.getElementById('micStatus').textContent = '请允许麦克风权限';
       } else {
-        document.getElementById('micStatus').textContent = '识别出错，请重试或切换到打字';
+        switchToWhisper('在线语音服务不可用，已切换离线识别，请重新点击麦克风');
       }
     };
-    recognition.onend = () => { isRecording = false; updateMicUI(); };
+    recognition.onend = function() {
+      isRecording = false;
+      document.getElementById('stopBtn').style.display = 'none';
+      document.getElementById('micBtn').style.display = '';
+    };
+  }
+}
+
+function switchToWhisper(msg) {
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder) {
+    useWhisper = true;
+    document.getElementById('micStatus').textContent = msg || '已切换离线识别，请重新点击麦克风';
+  } else {
+    document.getElementById('micStatus').textContent = '语音识别不可用，请使用打字输入';
+    toggleInputMode();
   }
 }
 
@@ -717,7 +733,7 @@ function startRec() {
     document.getElementById('stopBtn').style.display = '';
     document.getElementById('micStatus').textContent = '正在听你说...';
   } catch(e) {
-    document.getElementById('micStatus').textContent = '请稍后再试';
+    switchToWhisper('在线语音启动失败，切换到离线识别，请重新点击麦克风');
   }
 }
 
@@ -729,6 +745,15 @@ function stopRec() {
   document.getElementById('micBtn').style.display = '';
   document.getElementById('micStatus').textContent = '点击麦克风开始说';
   setTimeout(function() {
+    if (!spokenText) {
+      speechApiEmptyCount++;
+      if (speechApiEmptyCount >= 2) {
+        switchToWhisper('语音服务连续无响应，已切换离线识别，请重新点击麦克风');
+        return;
+      }
+    } else {
+      speechApiEmptyCount = 0;
+    }
     var text = spokenText || '(没有识别到)';
     processUserResponse(text, [text]);
   }, 300);
