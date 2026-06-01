@@ -469,17 +469,38 @@ function createRecognition() {
   recognition = new SR();
   recognition.lang = 'en-US';
   recognition.continuous = true;
-  recognition.interimResults = false;
+  recognition.interimResults = true;
   recognition.maxAlternatives = 3;
   recognition.onresult = handleSpeechResult;
   recognition.onerror = function(e) {
     if (e.error === 'no-speech') {
-      document.getElementById('micStatus').textContent = '没有检测到声音，请再试';
-    } else if (e.error === 'not-allowed') {
+      document.getElementById('micStatus').textContent = '没听清，继续说...';
+    } else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      recogFatal = true;
       document.getElementById('micStatus').textContent = '请允许麦克风权限';
+    } else if (e.error === 'aborted') {
+      // 由我们自己调用 stop() 触发，忽略
+    } else {
+      recogFatal = true;
+      document.getElementById('micStatus').textContent = '识别出错(' + e.error + ')，可改用打字';
     }
   };
-  recognition.onend = function() {};
+  recognition.onend = function() {
+    if (finalSubmit) {
+      finalSubmit = false;
+      submitSpokenText();
+      return;
+    }
+    if (isRecording && !recogFatal) {
+      // 引擎因静音/超时自动结束，但用户还没点停止 → 保留已识别内容并重新开始
+      committedText = spokenText;
+      try { recognition.start(); } catch(e) {}
+      return;
+    }
+    isRecording = false;
+    document.getElementById('stopBtn').classList.add('hidden');
+    document.getElementById('micBtn').classList.remove('hidden');
+  };
 }
 
 // ===================== HOME SCREEN =====================
@@ -606,6 +627,9 @@ function revealCurrentNpcText() {
 }
 
 var spokenText = '';
+var committedText = '';
+var finalSubmit = false;
+var recogFatal = false;
 
 function startRecording() {
   if (!micSupported) {
@@ -614,6 +638,9 @@ function startRecording() {
     return;
   }
   spokenText = '';
+  committedText = '';
+  finalSubmit = false;
+  recogFatal = false;
   createRecognition();
   try {
     recognition.start();
@@ -628,6 +655,7 @@ function startRecording() {
 }
 
 function stopRecording() {
+  finalSubmit = true;
   if (recognition) {
     try { recognition.stop(); } catch(ignore) {}
   }
@@ -635,10 +663,18 @@ function stopRecording() {
   document.getElementById('stopBtn').classList.add('hidden');
   document.getElementById('micBtn').classList.remove('hidden');
   document.getElementById('micStatus').textContent = '点击麦克风开始说';
+  // 正常情况由 onend 在最终结果到齐后提交；兜底：万一 onend 没触发，1.2秒后强制提交
   setTimeout(function() {
-    var text = spokenText || '(没有识别到)';
-    processUserResponse(text, [text]);
-  }, 300);
+    if (finalSubmit) {
+      finalSubmit = false;
+      submitSpokenText();
+    }
+  }, 1200);
+}
+
+function submitSpokenText() {
+  var text = spokenText || '(没有识别到)';
+  processUserResponse(text, [text]);
 }
 
 function handleSpeechResult(e) {
@@ -646,7 +682,8 @@ function handleSpeechResult(e) {
   for (var i = 0; i < e.results.length; i++) {
     full += e.results[i][0].transcript + ' ';
   }
-  spokenText = full.trim();
+  var cur = full.trim();
+  spokenText = (committedText ? committedText + ' ' + cur : cur).trim();
 }
 
 function toggleInputMode() {
