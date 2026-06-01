@@ -438,6 +438,7 @@ let speechSupported = true;
 let micSupported = true;
 let results = {excellent:0, good:0, retry:0, corrections:[]};
 let gotResult = false;
+let spokenText = '';
 
 function getCompleted() {
   try { return JSON.parse(localStorage.getItem('travel-eng-done') || '[]'); } catch(e) { return []; }
@@ -468,6 +469,7 @@ function createRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
   recognition.lang = 'en-US';
+  recognition.continuous = true;
   recognition.interimResults = false;
   recognition.maxAlternatives = 3;
   recognition.onresult = handleSpeechResult;
@@ -615,6 +617,7 @@ function startRecording() {
     return;
   }
   gotResult = false;
+  spokenText = '';
   createRecognition();
   try {
     recognition.start();
@@ -638,11 +641,13 @@ function stopRecording() {
   document.getElementById('micBtn').classList.remove('hidden');
   updateMicUI();
   setTimeout(() => {
-    if (!gotResult) {
+    if (gotResult && spokenText) {
+      processUserResponse(spokenText, [spokenText]);
+    } else {
       gotResult = true;
       processUserResponse('(没有识别到)', ['']);
     }
-  }, 500);
+  }, 300);
 }
 
 function updateMicUI() {
@@ -651,12 +656,12 @@ function updateMicUI() {
 }
 
 function handleSpeechResult(e) {
-  gotResult = true;
-  const texts = [];
-  for (let i = 0; i < e.results[0].length; i++) {
-    texts.push(e.results[0][i].transcript);
+  let full = '';
+  for (let i = 0; i < e.results.length; i++) {
+    full += e.results[i][0].transcript + ' ';
   }
-  processUserResponse(texts[0], texts);
+  spokenText = full.trim();
+  gotResult = true;
 }
 
 function toggleInputMode() {
