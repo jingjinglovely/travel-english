@@ -527,7 +527,7 @@ function showCurrentTurn() {
   npcDiv.className = 'chat-bubble';
   const initials = currentScenario.npcName.split(' ').map(w=>w[0]).join('');
   const npcId = 'npc-text-' + currentTurn;
-  const audioUrl = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(turn.npc) + '&type=2';
+  const audioFile = 'audio/npc_' + currentScenario.id + '_' + currentTurn + '.mp3';
   npcDiv.innerHTML = `
     <div class="npc-bubble">
       <div class="npc-avatar">${initials}</div>
@@ -537,7 +537,7 @@ function showCurrentTurn() {
           <span id="${npcId}" style="display:none">${turn.npc}</span>
           <span class="npc-text-hidden" id="${npcId}-placeholder" onclick="toggleNpcText('${npcId}')">&#128276; 听不懂？点击显示原文</span>
         </div>
-        <a href="${audioUrl}" style="display:inline-block;margin-top:6px;padding:6px 14px;background:#1a73e8;color:#fff;border-radius:16px;text-decoration:none;font-size:13px">&#128264; 点击听发音</a>
+        <audio controls preload="none" src="${audioFile}" style="height:32px;margin-top:6px"></audio>
       </div>
     </div>
   `;
