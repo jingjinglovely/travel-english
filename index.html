@@ -537,7 +537,7 @@ function showCurrentTurn() {
           <span id="${npcId}" style="display:none">${turn.npc}</span>
           <span class="npc-text-hidden" id="${npcId}-placeholder" onclick="toggleNpcText('${npcId}')">&#128276; 听不懂？点击显示原文</span>
         </div>
-        <audio controls preload="none" src="${audioUrl}" style="height:32px;margin-top:6px"></audio>
+        <audio controls preload="none" src="${audioUrl}" referrerpolicy="no-referrer" style="height:32px;margin-top:6px"></audio>
       </div>
     </div>
   `;
