@@ -435,6 +435,11 @@ let speechSupported = true;
 let micSupported = true;
 let results = {excellent:0, good:0, retry:0, corrections:[]};
 let spokenText = '';
+let useWhisper = false;
+let whisperPipeline = null;
+let whisperLoading = false;
+let mediaRecorder = null;
+let audioChunks = [];
 
 function getCompleted() {
   try { return JSON.parse(localStorage.getItem('travel-eng-done') || '[]'); } catch(e) { return []; }
@@ -455,7 +460,11 @@ function checkSpeechSupport() {
   if (!('speechSynthesis' in window)) speechSupported = false;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
-    micSupported = false;
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder) {
+      useWhisper = true;
+    } else {
+      micSupported = false;
+    }
   } else {
     recognition = new SR();
     recognition.lang = 'en-US';
@@ -475,6 +484,103 @@ function checkSpeechSupport() {
       }
     };
     recognition.onend = () => { isRecording = false; updateMicUI(); };
+  }
+}
+
+async function loadWhisper() {
+  if (whisperPipeline) return whisperPipeline;
+  if (whisperLoading) return null;
+  whisperLoading = true;
+  try {
+    document.getElementById('micStatus').textContent = '首次使用，加载语音识别模型...';
+    var mod = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3');
+    whisperPipeline = await mod.pipeline(
+      'automatic-speech-recognition',
+      'onnx-community/whisper-tiny.en',
+      {
+        device: 'wasm',
+        progress_callback: function(info) {
+          if (info.status === 'progress' && info.progress) {
+            document.getElementById('micStatus').textContent = '下载语音模型: ' + Math.round(info.progress) + '%';
+          }
+        }
+      }
+    );
+    whisperLoading = false;
+    document.getElementById('micStatus').textContent = '模型加载完成！点击麦克风开始说';
+    return whisperPipeline;
+  } catch(e) {
+    whisperLoading = false;
+    console.error('Whisper load failed:', e);
+    document.getElementById('micStatus').textContent = '模型加载失败，请使用打字输入';
+    toggleInputMode();
+    return null;
+  }
+}
+
+async function startWhisperRec() {
+  if (whisperLoading) {
+    document.getElementById('micStatus').textContent = '模型正在加载，请稍候...';
+    return;
+  }
+  if (!whisperPipeline) {
+    document.getElementById('micBtn').disabled = true;
+    var p = await loadWhisper();
+    document.getElementById('micBtn').disabled = false;
+    if (!p) return;
+  }
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.start();
+    isRecording = true;
+    document.getElementById('micBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = '';
+    document.getElementById('micStatus').textContent = '正在听你说...';
+  } catch(e) {
+    if (e.name === 'NotAllowedError') {
+      document.getElementById('micStatus').textContent = '请允许麦克风权限';
+    } else {
+      document.getElementById('micStatus').textContent = '无法访问麦克风';
+      console.error('getUserMedia error:', e);
+    }
+  }
+}
+
+async function stopWhisperRec() {
+  if (!mediaRecorder || mediaRecorder.state !== 'recording') return;
+  isRecording = false;
+  document.getElementById('stopBtn').style.display = 'none';
+  document.getElementById('micBtn').style.display = '';
+  document.getElementById('micStatus').textContent = '正在识别...';
+
+  var audioBlob = await new Promise(function(resolve) {
+    mediaRecorder.addEventListener('stop', function() {
+      resolve(new Blob(audioChunks, { type: mediaRecorder.mimeType }));
+    }, { once: true });
+    mediaRecorder.stop();
+  });
+  mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
+
+  try {
+    var arrayBuffer = await audioBlob.arrayBuffer();
+    var audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    var audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    var audioData = audioBuffer.getChannelData(0);
+    audioContext.close();
+    var result = await whisperPipeline(audioData);
+    var text = (result.text || '').trim();
+    document.getElementById('micStatus').textContent = '点击麦克风开始说';
+    if (!text) {
+      processUserResponse('(没有识别到)', ['(没有识别到)']);
+    } else {
+      processUserResponse(text, [text]);
+    }
+  } catch(e) {
+    console.error('Transcription error:', e);
+    document.getElementById('micStatus').textContent = '识别失败，请重试或切换到打字';
   }
 }
 
@@ -597,6 +703,7 @@ function revealCurrentNpcText() {
 }
 
 function startRec() {
+  if (useWhisper) { startWhisperRec(); return; }
   if (!micSupported) {
     document.getElementById('micStatus').textContent = '你的浏览器不支持语音识别，请使用打字输入';
     toggleInputMode();
@@ -615,6 +722,7 @@ function startRec() {
 }
 
 function stopRec() {
+  if (useWhisper) { stopWhisperRec(); return; }
   if (recognition) try { recognition.stop(); } catch(e) {}
   isRecording = false;
   document.getElementById('stopBtn').style.display = 'none';
@@ -879,6 +987,11 @@ function confirmExit() {
 function goHome() {
   window.speechSynthesis && window.speechSynthesis.cancel();
   if (isRecording && recognition) { recognition.stop(); isRecording = false; }
+  if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
+    isRecording = false;
+  }
   renderHome();
 }
 
