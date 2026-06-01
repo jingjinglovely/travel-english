@@ -83,9 +83,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .next-btn{background:#1a73e8;color:#fff;border:none;border-radius:24px;padding:10px 32px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;width:100%}
 .next-btn:active{transform:scale(.97)}
 .next-btn:disabled{background:#ccc;cursor:not-allowed}
-.stop-btn{background:#d32f2f;color:#fff;border:none;border-radius:24px;padding:10px 20px;font-size:15px;font-weight:600;cursor:pointer;flex-shrink:0}
-.stop-btn:active{transform:scale(.95)}
-.play-ref-btn{background:none;border:none;color:#1a73e8;font-size:18px;cursor:pointer;padding:2px 6px;vertical-align:middle}
 .or-divider{font-size:12px;color:#999}
 .input-mode-toggle{font-size:13px;color:#1a73e8;background:none;border:none;cursor:pointer;text-decoration:underline}
 
@@ -109,8 +106,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .btn-retry{background:#fff;color:#1a73e8;border:2px solid #1a73e8 !important}
 .btn-home{background:#1a73e8;color:#fff}
 
-.npc-audio{width:100%;max-width:280px;height:36px;margin-top:6px;display:block}
-.ref-audio{height:32px;margin-top:4px}
 .hidden{display:none !important}
 </style>
 </head>
@@ -142,8 +137,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
   <div class="chat-area" id="chatArea"></div>
   <div class="controls" id="controls">
     <div class="mic-row" id="micRow">
-      <button class="mic-btn" id="micBtn" onclick="startRecording()">&#127908;</button>
-      <button class="stop-btn hidden" id="stopBtn" onclick="stopRecording()">&#9632; 停止</button>
+      <button class="mic-btn" id="micBtn" onclick="toggleRecording()">&#127908;</button>
       <div style="flex:1;text-align:center">
         <div id="micStatus" style="font-size:14px;color:#666">点击麦克风开始说</div>
       </div>
@@ -433,13 +427,12 @@ const scenarios = [
 // ===================== APP STATE =====================
 let currentScenario = null;
 let currentTurn = 0;
-let speechRate = 1;
+let speechRate = 0.8;
 let isRecording = false;
 let recognition = null;
+let speechSupported = true;
 let micSupported = true;
 let results = {excellent:0, good:0, retry:0, corrections:[]};
-let gotResult = false;
-let spokenText = '';
 
 function getCompleted() {
   try { return JSON.parse(localStorage.getItem('travel-eng-done') || '[]'); } catch(e) { return []; }
@@ -457,32 +450,29 @@ function init() {
 }
 
 function checkSpeechSupport() {
+  if (!('speechSynthesis' in window)) speechSupported = false;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
     micSupported = false;
+  } else {
+    recognition = new SR();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 3;
+    recognition.onresult = handleSpeechResult;
+    recognition.onerror = e => {
+      isRecording = false;
+      updateMicUI();
+      if (e.error === 'no-speech') {
+        document.getElementById('micStatus').textContent = '没有检测到声音，请再试一次';
+      } else if (e.error === 'not-allowed') {
+        document.getElementById('micStatus').textContent = '请允许麦克风权限';
+      } else {
+        document.getElementById('micStatus').textContent = '识别出错，请重试或切换到打字';
+      }
+    };
+    recognition.onend = () => { isRecording = false; updateMicUI(); };
   }
-}
-
-function createRecognition() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang = 'en-US';
-  recognition.continuous = true;
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 3;
-  recognition.onresult = handleSpeechResult;
-  recognition.onerror = e => {
-    isRecording = false;
-    document.getElementById('stopBtn').classList.add('hidden');
-    document.getElementById('micBtn').classList.remove('hidden');
-    updateMicUI();
-  };
-  recognition.onend = () => {
-    isRecording = false;
-    document.getElementById('stopBtn').classList.add('hidden');
-    document.getElementById('micBtn').classList.remove('hidden');
-    updateMicUI();
-  };
 }
 
 // ===================== HOME SCREEN =====================
@@ -520,7 +510,6 @@ function startScenario(id) {
   document.getElementById('homeScreen').style.display = 'none';
   document.getElementById('resultScreen').style.display = 'none';
   document.getElementById('chatScreen').style.display = 'flex';
-  document.getElementById('controls').style.display = '';
   document.getElementById('backBtn').style.display = 'inline-block';
   document.getElementById('headerTitle').textContent = currentScenario.title;
   document.getElementById('sceneIntro').innerHTML = `<b>${currentScenario.icon} ${currentScenario.title}</b> — ${currentScenario.desc}`;
@@ -538,7 +527,6 @@ function showCurrentTurn() {
   npcDiv.className = 'chat-bubble';
   const initials = currentScenario.npcName.split(' ').map(w=>w[0]).join('');
   const npcId = 'npc-text-' + currentTurn;
-  const audioUrl = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(turn.npc) + '&type=2';
   npcDiv.innerHTML = `
     <div class="npc-bubble">
       <div class="npc-avatar">${initials}</div>
@@ -547,8 +535,8 @@ function showCurrentTurn() {
         <div class="npc-text">
           <span id="${npcId}" style="display:none">${turn.npc}</span>
           <span class="npc-text-hidden" id="${npcId}-placeholder" onclick="toggleNpcText('${npcId}')">&#128276; 听不懂？点击显示原文</span>
+          <button class="replay-btn" onclick="speakNPC()" title="重新播放">&#128264;</button>
         </div>
-        <audio controls preload="none" class="npc-audio" src="${audioUrl}"></audio>
       </div>
     </div>
   `;
@@ -561,9 +549,24 @@ function showCurrentTurn() {
   chat.appendChild(hintDiv);
 
   scrollToBottom();
+  speakNPC();
   resetControls();
 }
 
+function speakNPC() {
+  if (!speechSupported) return;
+  const turn = currentScenario.turns[currentTurn];
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(turn.npc);
+  u.lang = 'en-US';
+  u.rate = speechRate;
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Samantha'))
+    || voices.find(v => v.lang.startsWith('en-US'))
+    || voices.find(v => v.lang.startsWith('en'));
+  if (enVoice) u.voice = enVoice;
+  window.speechSynthesis.speak(u);
+}
 
 // ===================== SPEECH RECOGNITION =====================
 function toggleNpcText(id) {
@@ -586,44 +589,25 @@ function revealCurrentNpcText() {
   if (placeholder) placeholder.textContent = '🔔 点击隐藏原文';
 }
 
-function startRecording() {
+function toggleRecording() {
   if (!micSupported) {
     document.getElementById('micStatus').textContent = '你的浏览器不支持语音识别，请使用打字输入';
     toggleInputMode();
     return;
   }
-  gotResult = false;
-  spokenText = '';
-  createRecognition();
-  try {
-    recognition.start();
-  } catch(e) {
-    document.getElementById('micStatus').textContent = '录音启动失败，请刷新页面';
-    return;
-  }
-  isRecording = true;
-  document.getElementById('micStatus').textContent = '正在听你说...';
-  document.getElementById('micBtn').classList.add('hidden');
-  document.getElementById('stopBtn').classList.remove('hidden');
-  updateMicUI();
-}
-
-function stopRecording() {
-  if (recognition) {
-    try { recognition.stop(); } catch(ignore) {}
-  }
-  isRecording = false;
-  document.getElementById('stopBtn').classList.add('hidden');
-  document.getElementById('micBtn').classList.remove('hidden');
-  updateMicUI();
-  setTimeout(() => {
-    if (gotResult && spokenText) {
-      processUserResponse(spokenText, [spokenText]);
-    } else {
-      gotResult = true;
-      processUserResponse('(没有识别到)', ['']);
+  if (isRecording) {
+    recognition.stop();
+    isRecording = false;
+  } else {
+    try {
+      recognition.start();
+      isRecording = true;
+      document.getElementById('micStatus').textContent = '正在听你说...';
+    } catch(e) {
+      document.getElementById('micStatus').textContent = '请稍后再试';
     }
-  }, 300);
+  }
+  updateMicUI();
 }
 
 function updateMicUI() {
@@ -632,12 +616,11 @@ function updateMicUI() {
 }
 
 function handleSpeechResult(e) {
-  let full = '';
-  for (let i = 0; i < e.results.length; i++) {
-    full += e.results[i][0].transcript + ' ';
+  const texts = [];
+  for (let i = 0; i < e.results[0].length; i++) {
+    texts.push(e.results[0][i].transcript);
   }
-  spokenText = full.trim();
-  gotResult = true;
+  processUserResponse(texts[0], texts);
 }
 
 function toggleInputMode() {
@@ -698,17 +681,11 @@ function processUserResponse(mainText, alternatives) {
   let corrHTML = `<div class="correction-box ${statusClass}">`;
   corrHTML += `<div class="correction-status ${statusClass}">${statusText}</div>`;
 
-  const refAudioUrl = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(analysis.bestMatch) + '&type=2';
-  if (analysis.score >= 1.0) {
-    corrHTML += `<div class="correction-ref" style="color:#2e7d32">完美！和参考答案完全一致。</div>`;
-    corrHTML += `<div class="correction-ref"><audio controls preload="none" class="ref-audio" src="${refAudioUrl}"></audio></div>`;
-  } else if (analysis.score >= 0.8) {
+  if (analysis.score >= 0.8 && analysis.score < 1.0) {
     corrHTML += `<div class="correction-ref" style="color:#2e7d32">你的表达没问题！以下是另一种常见说法供参考：</div>`;
     corrHTML += `<div class="correction-ref"><b>参考：</b>${analysis.bestMatch}</div>`;
-    corrHTML += `<div class="correction-ref"><audio controls preload="none" class="ref-audio" src="${refAudioUrl}"></audio></div>`;
-  } else {
+  } else if (analysis.score < 0.8) {
     corrHTML += `<div class="correction-ref"><b>参考回答：</b>${analysis.bestMatch}</div>`;
-    corrHTML += `<div class="correction-ref"><audio controls preload="none" class="ref-audio" src="${refAudioUrl}"></audio></div>`;
     if (analysis.yourIssues.length > 0) {
       corrHTML += `<div class="correction-ref" style="margin-top:4px"><b>你说的：</b>${analysis.highlighted}</div>`;
     }
@@ -855,8 +832,6 @@ function resetControls() {
   nextBtn.classList.add('hidden');
   toggle.classList.remove('hidden');
 
-  document.getElementById('stopBtn').classList.add('hidden');
-  document.getElementById('micBtn').classList.remove('hidden');
   if (micSupported) {
     micRow.classList.remove('hidden');
     textRow.classList.add('hidden');
@@ -883,6 +858,7 @@ function confirmExit() {
 }
 
 function goHome() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
   if (isRecording && recognition) { recognition.stop(); isRecording = false; }
   renderHome();
 }
@@ -909,20 +885,16 @@ function scrollToBottom() {
 
 // ===================== RESULTS =====================
 function showResults() {
-  try {
-    markCompleted(currentScenario.id);
-  } catch(e) {}
+  markCompleted(currentScenario.id);
   document.getElementById('chatScreen').style.display = 'none';
-  document.getElementById('controls').style.display = 'none';
-  document.getElementById('resultScreen').style.display = 'block';
+  document.getElementById('resultScreen').style.display = '';
   document.getElementById('backBtn').style.display = 'inline-block';
 
   const total = results.excellent + results.good + results.retry;
-  const pct = total > 0 ? Math.round(results.excellent / total * 100) : 0;
-  const title = currentScenario ? currentScenario.title : '未知';
+  const pct = Math.round(results.excellent / total * 100);
 
   let html = `
-    <div class="stat-row"><span class="stat-label">场景</span><span class="stat-value">${title}</span></div>
+    <div class="stat-row"><span class="stat-label">场景</span><span class="stat-value">${currentScenario.title}</span></div>
     <div class="stat-row"><span class="stat-label">总对话轮数</span><span class="stat-value">${total}</span></div>
     <div class="stat-row"><span class="stat-label">&#9989; 完美</span><span class="stat-value green">${results.excellent}</span></div>
     <div class="stat-row"><span class="stat-label">&#128076; 不错</span><span class="stat-value orange">${results.good}</span></div>
@@ -930,14 +902,13 @@ function showResults() {
     <div class="stat-row"><span class="stat-label">准确率</span><span class="stat-value ${pct>=80?'green':pct>=50?'orange':'red'}">${pct}%</span></div>
   `;
 
-  const needFix = results.corrections.filter(c => c.score < 0.8);
-  if (needFix.length > 0) {
+  if (results.corrections.filter(c=>c.score<0.8).length > 0) {
     html += '<div style="text-align:left;margin-top:16px;font-size:14px;font-weight:600;color:#666">需要改进的句子：</div>';
-    needFix.forEach(c => {
-      html += '<div style="text-align:left;margin-top:8px;font-size:13px;line-height:1.5;padding:8px 0;border-bottom:1px solid #f0f0f0">';
-      html += '<div style="color:#c62828">你说的：' + c.user + '</div>';
-      html += '<div style="color:#1a73e8">参考：' + c.ref + '</div>';
-      html += '</div>';
+    results.corrections.filter(c=>c.score<0.8).forEach(c => {
+      html += `<div style="text-align:left;margin-top:8px;font-size:13px;line-height:1.5;padding:8px 0;border-bottom:1px solid #f0f0f0">
+        <div style="color:#c62828">你说的：${c.user}</div>
+        <div style="color:#1a73e8">参考：${c.ref}</div>
+      </div>`;
     });
   }
 
@@ -946,6 +917,12 @@ function showResults() {
 
 function retryScenario() {
   if (currentScenario) startScenario(currentScenario.id);
+}
+
+// ===================== VOICE INIT =====================
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  window.speechSynthesis.getVoices();
 }
 
 init();
