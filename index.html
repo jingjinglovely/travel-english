@@ -113,6 +113,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 </style>
 </head>
 <body>
+<audio id="ttsAudio" preload="none"></audio>
 
 <div class="header">
   <button class="back-btn" id="backBtn" onclick="confirmExit()">&#8592;</button>
@@ -515,6 +516,11 @@ function renderHome() {
 
 // ===================== CHAT SCREEN =====================
 function startScenario(id) {
+  // 用户点击时解锁音频（安卓要求）
+  const audio = document.getElementById('ttsAudio');
+  audio.play().catch(()=>{});
+  audio.pause();
+
   currentScenario = scenarios.find(s => s.id === id);
   currentTurn = 0;
   results = {excellent:0, good:0, retry:0, corrections:[]};
@@ -562,7 +568,6 @@ function showCurrentTurn() {
   chat.appendChild(hintDiv);
 
   scrollToBottom();
-  speakNPC();
   resetControls();
 }
 
@@ -575,33 +580,11 @@ function speakRef(id) {
   if (el) speakEnglish(el.textContent);
 }
 
-let currentAudio = null;
-
 function speakEnglish(text) {
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio = null;
-  }
-  // 优先用有道发音（安卓兼容好）
-  const url = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(text) + '&type=2';
-  const audio = new Audio(url);
+  const audio = document.getElementById('ttsAudio');
+  audio.src = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(text) + '&type=2';
   audio.playbackRate = speechRate;
-  currentAudio = audio;
-  audio.play().catch(() => {
-    // 有道失败则回退到 Web Speech API
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US';
-      u.rate = speechRate;
-      const voices = window.speechSynthesis.getVoices();
-      const enVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Samantha'))
-        || voices.find(v => v.lang.startsWith('en-US'))
-        || voices.find(v => v.lang.startsWith('en'));
-      if (enVoice) u.voice = enVoice;
-      window.speechSynthesis.speak(u);
-    }
-  });
+  audio.play();
 }
 
 // ===================== SPEECH RECOGNITION =====================
