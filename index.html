@@ -541,11 +541,13 @@ function showCurrentTurn() {
           <span id="${npcId}" style="display:none">${turn.npc}</span>
           <span class="npc-text-hidden" id="${npcId}-placeholder" onclick="toggleNpcText('${npcId}')">&#128276; 听不懂？点击显示原文</span>
         </div>
-        <audio controls preload="none" src="${audioFile}" style="height:32px;margin-top:6px"></audio>
+        <audio controls preload="none" id="npc-audio-${currentTurn}" src="${audioFile}" style="height:32px;margin-top:6px"></audio>
       </div>
     </div>
   `;
   chat.appendChild(npcDiv);
+  var a = document.getElementById('npc-audio-' + currentTurn);
+  if (a) a.play().catch(function(){});
 
   // Hint
   const hintDiv = document.createElement('div');
