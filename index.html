@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>旅行英语练习 - 新加坡 & 吉隆坡</title>
+<title>职业场景英语练习</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f0f2f5;color:#333;min-height:100vh;overflow-x:hidden}
@@ -17,7 +17,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 /* Home Screen */
 .home{padding:16px}
 .home-title{text-align:center;margin:20px 0 8px;font-size:22px;font-weight:700;color:#1a73e8}
-.home-subtitle{text-align:center;color:#666;font-size:14px;margin-bottom:24px}
+.home-subtitle{text-align:center;color:#666;font-size:14px;margin-bottom:18px}
+.builder-panel{max-width:860px;margin:0 auto 20px;background:#fff;border:1px solid #e6ecf2;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.builder-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.builder-title{font-size:16px;font-weight:700;color:#1a1f2b;margin-bottom:4px}
+.builder-subtitle{font-size:13px;color:#667085;line-height:1.5}
+.builder-ghost{border:1px solid #c7d7ea;background:#f8fbff;color:#1a73e8;border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.builder-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.builder-field{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#344054}
+.builder-field-full{grid-column:1 / -1}
+.builder-field input,.builder-field select,.builder-field textarea{width:100%;border:1px solid #d9e2ec;border-radius:10px;padding:11px 12px;font-size:14px;background:#fff;color:#101828;outline:none}
+.builder-field textarea{resize:vertical;min-height:80px;line-height:1.5}
+.builder-field input:focus,.builder-field select:focus,.builder-field textarea:focus{border-color:#1a73e8;box-shadow:0 0 0 3px rgba(26,115,232,.08)}
+.builder-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.builder-primary,.builder-secondary{border-radius:10px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer;border:none}
+.builder-primary{background:#1a73e8;color:#fff}
+.builder-secondary{background:#eef2f6;color:#344054}
+.section-title{max-width:860px;margin:16px auto 10px;font-size:14px;font-weight:700;color:#344054}
 .scenario-grid{display:grid;grid-template-columns:1fr;gap:12px;max-width:500px;margin:0 auto}
 .scenario-card{background:#fff;border-radius:16px;padding:16px;cursor:pointer;transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;gap:14px;border:2px solid transparent}
 .scenario-card:active{transform:scale(.97)}
@@ -30,6 +46,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .scenario-done{position:absolute;top:8px;right:8px;font-size:18px}
 .scenario-card{position:relative}
 .home-progress{text-align:center;color:#1a73e8;font-size:15px;font-weight:600;margin-bottom:16px}
+.empty-state{max-width:860px;margin:0 auto 6px;padding:14px 16px;border:1px dashed #c7d7ea;border-radius:12px;background:#fafcff;color:#667085;font-size:13px;line-height:1.5}
 
 /* Chat Screen */
 .chat-screen{display:none;flex-direction:column;height:100vh}
@@ -116,7 +133,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 
 <div class="header">
   <button class="back-btn" id="backBtn" onclick="confirmExit()">&#8592;</button>
-  <h1 id="headerTitle">旅行英语练习</h1>
+  <h1 id="headerTitle">职业场景英语练习</h1>
   <div class="speed-control">
     <label>语速</label>
     <select id="speedSelect" onchange="setSpeechRate(this.value)">
@@ -129,8 +146,52 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 </div>
 
 <div id="homeScreen" class="home">
-  <div class="home-title">新加坡 & 吉隆坡</div>
-  <div class="home-subtitle">选择一个场景开始练习听说</div>
+  <div class="home-title">把你的工作变成英语场景</div>
+  <div class="home-subtitle">先填角色和业务，再开始练习听说</div>
+  <div class="builder-panel">
+    <div class="builder-head">
+      <div>
+        <div class="builder-title">定制练习场景</div>
+        <div class="builder-subtitle">填入你的角色、产品和目标，软件会生成一套可直接开练的 4 轮对话。</div>
+      </div>
+      <button class="builder-ghost" onclick="fillTPSExample()">载入 TPS 示例</button>
+    </div>
+    <div class="builder-grid">
+      <label class="builder-field">场景名称
+        <input id="customTitleInput" type="text" placeholder="例如：TPS 客户介绍">
+      </label>
+      <label class="builder-field">你的角色
+        <input id="customRoleInput" type="text" placeholder="例如：TPS 软件产品经理">
+      </label>
+      <label class="builder-field">对话对象
+        <input id="customAudienceInput" type="text" placeholder="例如：客户 / 领导 / 合作方">
+      </label>
+      <label class="builder-field">产品 / 方案
+        <input id="customProductInput" type="text" placeholder="例如：TPS 平台">
+      </label>
+      <label class="builder-field builder-field-full">场景说明
+        <textarea id="customBriefInput" rows="3" placeholder="例如：向客户介绍 TPS 的核心价值、演示重点和下一步计划"></textarea>
+      </label>
+      <label class="builder-field builder-field-full">关键词
+        <textarea id="customKeywordInput" rows="2" placeholder="例如：效率, 流程, 报表, 权限, 集成"></textarea>
+      </label>
+      <label class="builder-field">练习目标
+        <select id="customGoalInput">
+          <option value="intro">产品介绍</option>
+          <option value="demo">方案演示</option>
+          <option value="discovery">需求澄清</option>
+          <option value="followup">会议跟进</option>
+        </select>
+      </label>
+    </div>
+    <div class="builder-actions">
+      <button class="builder-primary" onclick="createCustomScenario()">生成并开始练习</button>
+      <button class="builder-secondary" onclick="resetCustomForm()">清空</button>
+    </div>
+  </div>
+  <div class="section-title">我的定制场景</div>
+  <div class="scenario-grid" id="customScenarioGrid"></div>
+  <div class="section-title">示例场景</div>
   <div class="scenario-grid" id="scenarioGrid"></div>
 </div>
 
@@ -425,8 +486,335 @@ const scenarios = [
 {npc:"Excuse me, is this the gate for the flight to Beijing?",hint:"你也不确定，说你看看登机牌。",expected:["Let me check my boarding pass... Yes, this should be the right gate.","I think so. Let me double-check my boarding pass.","Hold on, let me look at my ticket... Yes, this is the right gate."],keywords:["check","boarding","pass","right","gate"],tips:"登机牌 boarding pass，登机口 gate。"},
 {npc:"Great, thanks! Is this your first time visiting Singapore?",hint:"第一次来，玩了一天，很累但很开心。",expected:["Yes, first time! I only had one day but I loved it. I'm tired but happy!","First time! It was a quick trip but amazing. Exhausted but worth it!","Yes! Just one day but I saw so much. Tired but happy!"],keywords:["first","time","tired","happy","amazing","loved"],tips:"累但开心 tired but happy / exhausted but worth it。"},
 {npc:"One day? That's impressive! Safe travels home!",hint:"谢谢！你也是。一路平安。",expected:["Thank you! Safe travels to you too!","Thanks! Have a safe flight!","Thank you! You too, safe travels!"],keywords:["thank","safe","travel","flight"],tips:"一路平安 Safe travels! / Have a safe flight!"}
+]},
+{id:51,icon:"🎯",title:"TPS投标技术答辩",tag:"韩国重离子投标",desc:"韩国三陟项目投标现场，一位韩国物理师就 PHOENIX TPS 提问，你用英文回答。答案已按公司口径准备好，可反复练。",npcName:"Korean Physicist",turns:[
+{npc:"Thank you for your presentation. Let me ask about the TPS. What dose calculation engines do you use?",hint:"临床用笔形束（已验证）；快速蒙卡在验证中，还没临床用。",expected:["For clinical use, we use the pencil beam engine. It is validated, gamma 98.5 percent. A fast Monte Carlo engine is under validation, not yet clinical.","Our clinical dose engine is pencil beam. Fast Monte Carlo is under validation and not yet used clinically."],keywords:["pencil","beam","clinical","monte","carlo","validation"],tips:"笔形束 pencil beam「盆suo 比姆」。MC 说 under validation, not yet clinical，别说MC已临床。"},
+{npc:"Which RBE model does your system use?",hint:"用 LQ 模型，日式 NIRS/QST 路线，和大阪做过 MKM 交叉验证。",expected:["We use an LQ-based RBE model, following the Japanese NIRS QST clinical approach. We cross-checked it with Osaka.","It is an LQ-based RBE model, the Japanese clinical approach, cross-checked with Osaka Heavy Ion Center."],keywords:["lq","rbe","japanese","nirs","osaka"],tips:"LQ「el-kju」, NIRS「奈尔斯」。这题必被问。"},
+{npc:"Is it MKM or LEM specifically?",hint:"我们是日式 LQ 临床路线，和大阪的 MKM 做过交叉验证。",expected:["It follows the Japanese clinical LQ approach. We cross-checked it with Osaka Heavy Ion Center MKM model.","Japanese clinical LQ, validated against Osaka MKM."],keywords:["japanese","lq","osaka","mkm"],tips:"防追问题。核心：我们 LQ 日式，和大阪 MKM 交叉验证，别自称 MKM 或 LEM。"},
+{npc:"What is your dose calculation accuracy?",hint:"病人 QA gamma 98.5%（3mm/3%），2000+ 束流 QA。",expected:["Our patient QA gamma pass rate is 98.5 percent, at 3 millimeter 3 percent. We have over 2000 beam QA measurements.","Gamma pass rate is 98.5 percent at 3 millimeter and 3 percent, from more than 2000 beam QA measurements."],keywords:["gamma","98.5","percent","millimeter","2000"],tips:"gamma「嘎马」。数字脱口：98.5 percent, 3mm 3 percent, 2000+ QA。"},
+{npc:"Do you support robust optimization and robust evaluation?",hint:"支持，针对摆位和射程不确定性。",expected:["Yes. We support robust optimization and robust evaluation, for setup and range uncertainty.","Yes, both robust optimization and robust evaluation, covering setup and range uncertainties."],keywords:["yes","robust","optimization","evaluation","uncertainty"],tips:"robust「若BAST」。这是卖点，答得肯定。"},
+{npc:"How about LET? Do you have LET display and LET optimization?",hint:"LETd 能显示；没有 LET 优化。",expected:["We display LETd in plan evaluation. We do not have LET optimization.","LETd distributions are shown in evaluation, but we do not have LET optimization."],keywords:["letd","display","evaluation","not","optimization"],tips:"LET「el-ee-tee」。诚实：显示有，优化没有，别含糊。"},
+{npc:"Can one plan use multiple ions and multiple fields?",hint:"可以，多喷嘴多离子单计划，SFO/MFO 都支持。",expected:["Yes. One plan can use multi-nozzle and multi-particle. We support both SFO and MFO optimization.","Yes, multi-nozzle and multi-particle in one plan, with SFO and MFO optimization."],keywords:["yes","multi","nozzle","particle","sfo","mfo"],tips:"SFO「es-ef-o」单野优化, MFO「em-ef-o」多野优化。强项。"},
+{npc:"Do you offer adaptive radiotherapy, ART?",hint:"研发中，还没临床。现在专注做好碳离子计划。",expected:["ART is under development, not yet clinical. Today we focus on high-quality carbon planning.","Adaptive is on our roadmap and under development. It is not yet in clinical use."],keywords:["art","adaptive","development","not","clinical"],tips:"别承诺。under development, not yet clinical。"},
+{npc:"Can you optimize on physical dose and RBE-weighted dose?",hint:"两者都可以。",expected:["Yes, both. You can optimize on physical dose or RBE-weighted dose.","Both are supported: physical dose and RBE-weighted dose objectives."],keywords:["both","physical","rbe","weighted","dose"],tips:"简短：Both, physical or RBE-weighted。"},
+{npc:"What about contouring and image registration?",hint:"手动+AI 勾画；多模态配准 CT-CT, CT-MR, CT-PET。",expected:["We have manual and AI contouring, and multi-modality registration: CT to CT, CT to MR, and CT to PET.","Manual and AI-based contouring, plus multi-modality registration for CT, MR and PET."],keywords:["manual","contouring","multi","modality","registration","pet"],tips:"contouring「康tour-ing」勾画, registration「re-jis-TRAY-shun」配准。"},
+{npc:"Is the system clinically validated? How many patients?",hint:"6 家医院部署，浙肿 1100+ 例，有同行评审论文。",expected:["Six hospitals use PHOENIX Plan. Zhejiang Cancer Hospital treated over 1100 cases. We have a peer-reviewed publication.","PHOENIX Plan is used in six hospitals. Over 1100 cases at Zhejiang Cancer Hospital, with a peer-reviewed publication."],keywords:["six","hospitals","1100","cases","peer","publication"],tips:"数字：6 hospitals, 1100+ cases, peer-reviewed。可信度锚点。"},
+{npc:"Honestly, how does your TPS compare to RayStation?",hint:"先夸对方，再讲强项：多离子单计划、LQ RBE、全系统自研打通、本地服务。别贬低。",expected:["RayStation is a strong system. Our advantage is multi-ion in one plan, LQ RBE, and full integration with our OIS, TCS and accelerator, plus strong local support.","RayStation is excellent. Our strengths are multi-ion single plan, integrated ecosystem, and fast local service."],keywords:["strong","advantage","multi","ion","integration","local"],tips:"策略题：先肯定对方，再讲我们独有的，别说对方坏话。"},
+{npc:"Thank you, that was very clear. We will follow up with detailed questions later.",hint:"谢谢，如需具体数据我们随后提供。",expected:["Thank you. We are happy to provide detailed data and documentation as needed.","Thank you very much. We will gladly follow up with any detailed information you need."],keywords:["thank","provide","detailed","data","follow"],tips:"收尾礼貌。答不上的就说 We will confirm and get back to you。"}
 ]}
 ];
+
+const customScenarioStorageKey = 'travel-eng-custom-scenarios';
+let customScenarios = [];
+
+function loadCustomScenarios() {
+  try {
+    const raw = localStorage.getItem(customScenarioStorageKey);
+    const parsed = raw ? JSON.parse(raw) : [];
+    customScenarios = Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    customScenarios = [];
+  }
+}
+
+function saveCustomScenarios() {
+  try { localStorage.setItem(customScenarioStorageKey, JSON.stringify(customScenarios)); } catch (e) {}
+}
+
+function getAllScenarios() {
+  return [...customScenarios, ...scenarios];
+}
+
+function goalLabel(goal) {
+  return ({
+    intro: '产品介绍',
+    demo: '方案演示',
+    discovery: '需求澄清',
+    followup: '会议跟进'
+  }[goal] || '定制场景');
+}
+
+function cleanList(text) {
+  return (text || '')
+    .split(/[\n,，;；/]+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+function escapeHTML(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function fillTPSExample() {
+  document.getElementById('customTitleInput').value = 'TPS 客户介绍';
+  document.getElementById('customRoleInput').value = 'TPS 软件产品经理';
+  document.getElementById('customAudienceInput').value = '客户';
+  document.getElementById('customProductInput').value = 'TPS 平台';
+  document.getElementById('customBriefInput').value = '向客户介绍 TPS 的核心价值、演示重点和下一步计划。';
+  document.getElementById('customKeywordInput').value = '效率, 流程, 报表, 权限, 集成';
+  document.getElementById('customGoalInput').value = 'intro';
+}
+
+function resetCustomForm() {
+  ['customTitleInput', 'customRoleInput', 'customAudienceInput', 'customProductInput', 'customBriefInput', 'customKeywordInput'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('customGoalInput').value = 'intro';
+}
+
+function createCustomScenario() {
+  const profile = {
+    title: document.getElementById('customTitleInput').value.trim(),
+    role: document.getElementById('customRoleInput').value.trim(),
+    audience: document.getElementById('customAudienceInput').value.trim(),
+    product: document.getElementById('customProductInput').value.trim(),
+    brief: document.getElementById('customBriefInput').value.trim(),
+    keywords: cleanList(document.getElementById('customKeywordInput').value),
+    goal: document.getElementById('customGoalInput').value
+  };
+  const scenario = buildCustomScenario(profile);
+  customScenarios.unshift(scenario);
+  saveCustomScenarios();
+  renderHome();
+  startScenario(scenario.id);
+}
+
+function buildCustomScenario(profile) {
+  const title = profile.title || `${profile.product || '业务'} ${goalLabel(profile.goal)}`;
+  const role = profile.role || '你的角色';
+  const audience = profile.audience || '客户';
+  const product = profile.product || 'TPS';
+  const brief = profile.brief || `${role} 面向 ${audience} 介绍 ${product}`;
+  const baseKeywords = cleanList(profile.keywords.join(','));
+  const key = profile.goal || 'intro';
+  const turns = buildCustomTurns({role, audience, product, brief, keywords: baseKeywords, goal: key});
+
+  return {
+    id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    icon: '💼',
+    title,
+    tag: `定制 · ${goalLabel(key)}`,
+    desc: brief,
+    npcName: audience.includes('客户') ? 'Client' : 'Partner',
+    turns
+  };
+}
+
+function buildCustomTurns(profile) {
+  const product = profile.product || 'TPS';
+  const audience = profile.audience || '客户';
+  const keywords = Array.from(new Set([
+    ...(profile.keywords || []),
+    product.toLowerCase(),
+    'client',
+    'value',
+    'demo',
+    'workflow'
+  ]));
+  const map = {
+    intro: [
+      {
+        npc: `Thanks for joining today. Could you give me a quick overview of ${product}?`,
+        hint: `用一句话介绍 ${product} 是做什么的。`,
+        expected: [
+          `${product} is a platform that helps teams work more efficiently.`,
+          `It helps clients manage work, track progress, and improve visibility.`,
+          `It's our product for smoother operations and better collaboration.`
+        ],
+        keywords,
+        tips: `开场时先给一句 elevator pitch，重点说清 ${product} 解决什么问题。`
+      },
+      {
+        npc: `That sounds useful. What problems does it solve for ${audience}?`,
+        hint: '说它能解决效率、流程和沟通问题。',
+        expected: [
+          'It reduces manual work and saves time.',
+          'It improves workflow visibility and keeps everyone aligned.',
+          'It helps teams communicate more clearly and work faster.'
+        ],
+        keywords: ['manual', 'time', 'workflow', 'visibility', 'aligned', 'faster']
+      },
+      {
+        npc: `How would you explain the main value in a client demo?`,
+        hint: '强调 2-3 个最重要的价值。',
+        expected: [
+          'The main value is better efficiency, clearer control, and easier reporting.',
+          'I would focus on speed, visibility, and teamwork.',
+          'The key benefit is making the process simpler and more transparent.'
+        ],
+        keywords: ['efficiency', 'control', 'reporting', 'speed', 'visibility', 'simple']
+      },
+      {
+        npc: `What would you suggest as the next step after this meeting?`,
+        hint: '建议试点、演示或 follow-up。',
+        expected: [
+          `I'd suggest a pilot project and a follow-up demo next week.`,
+          `We could arrange a trial and then review the results together.`,
+          `Let's set up another meeting to discuss the next steps.`
+        ],
+        keywords: ['pilot', 'follow-up', 'demo', 'trial', 'meeting', 'next']
+      }
+    ],
+    demo: [
+      {
+        npc: `Could you walk me through the main workflow of ${product}?`,
+        hint: '按步骤介绍产品怎么用。',
+        expected: [
+          `Sure. First I log in, then I create a workflow, and finally I review the results.`,
+          `It usually starts with setup, then tracking, and ends with reporting.`,
+          `Let me show you the core process step by step.`
+        ],
+        keywords: ['workflow', 'step', 'process', 'reporting', 'core']
+      },
+      {
+        npc: `Which feature do ${audience} care about the most?`,
+        hint: '说最常被关注的功能。',
+        expected: [
+          'They care most about visibility, permissions, and reporting.',
+          'The most important feature is the one that saves time for the team.',
+          'Integration and control are usually the biggest concerns.'
+        ],
+        keywords: ['visibility', 'permissions', 'reporting', 'integration', 'time']
+      },
+      {
+        npc: `How do you handle questions about integration?`,
+        hint: '说明它可以和其他系统打通。',
+        expected: [
+          'It can integrate with existing systems through APIs.',
+          'We support integration with common tools and platforms.',
+          'The setup is flexible and can connect with other systems.'
+        ],
+        keywords: ['integration', 'api', 'systems', 'tools', 'platforms', 'flexible']
+      },
+      {
+        npc: `What would you say is the next step after the demo?`,
+        hint: '建议试点或安排第二次会议。',
+        expected: [
+          `We should schedule a follow-up and define a pilot scope.`,
+          `The next step would be a trial and a feedback session.`,
+          `Let's confirm the priorities and plan the next meeting.`
+        ],
+        keywords: ['follow-up', 'pilot', 'trial', 'feedback', 'meeting', 'next']
+      }
+    ],
+    discovery: [
+      {
+        npc: `What is your current process like today?`,
+        hint: '先问现状，再听对方描述。',
+        expected: [
+          'We currently do most things manually.',
+          'The process is a bit fragmented across teams.',
+          'Right now we use several tools and it is not very efficient.'
+        ],
+        keywords: ['currently', 'manual', 'fragmented', 'efficient', 'tools']
+      },
+      {
+        npc: `Where are the biggest bottlenecks?`,
+        hint: '找到痛点。',
+        expected: [
+          'The biggest bottleneck is communication and reporting.',
+          'It takes too long to get updates.',
+          'We lose time because the workflow is not clear.'
+        ],
+        keywords: ['bottleneck', 'communication', 'reporting', 'updates', 'workflow', 'time']
+      },
+      {
+        npc: `What would success look like for this project?`,
+        hint: '让对方说目标和结果。',
+        expected: [
+          'Success would mean faster delivery and better visibility.',
+          'We want fewer manual steps and clearer reporting.',
+          'It would be great if the team could work more smoothly.'
+        ],
+        keywords: ['success', 'faster', 'visibility', 'manual', 'reporting', 'smoothly']
+      },
+      {
+        npc: `Can we set up a follow-up call to confirm the requirements?`,
+        hint: '确认下一次沟通时间。',
+        expected: [
+          'Yes, let us schedule a follow-up call.',
+          'Sure, I will send a meeting invite.',
+          'Absolutely, we can confirm the details in the next call.'
+        ],
+        keywords: ['follow-up', 'call', 'meeting', 'invite', 'confirm', 'details']
+      }
+    ],
+    followup: [
+      {
+        npc: `Thanks for the meeting. Could you summarize the key points?`,
+        hint: '复述会议重点。',
+        expected: [
+          'Sure, the main points are the timeline, scope, and next steps.',
+          'The key points are the priorities and the follow-up plan.',
+          'We mainly discussed the problems and the proposed solution.'
+        ],
+        keywords: ['summarize', 'main', 'points', 'timeline', 'scope', 'follow-up']
+      },
+      {
+        npc: `What concerns should we address before moving forward?`,
+        hint: '说出客户最担心的问题。',
+        expected: [
+          'We should clarify the timeline and the cost.',
+          'The main concern is whether the solution fits the current process.',
+          'We need to answer questions about implementation and support.'
+        ],
+        keywords: ['concerns', 'timeline', 'cost', 'process', 'implementation', 'support']
+      },
+      {
+        npc: `What timeline are you looking at?`,
+        hint: '说什么时候可以开始。',
+        expected: [
+          'We are looking at starting next month.',
+          'If possible, we would like to begin in two weeks.',
+          'The target is to start after we finish the review.'
+        ],
+        keywords: ['timeline', 'starting', 'month', 'weeks', 'target', 'review']
+      },
+      {
+        npc: `Shall we set up the next call?`,
+        hint: '确认下一次会议。',
+        expected: [
+          `Yes, let's schedule it for next week.`,
+          'That works for me. Please send the invite.',
+          'Sure, I am available later this week.'
+        ],
+        keywords: ['schedule', 'next', 'week', 'invite', 'available', 'call']
+      }
+    ]
+  };
+
+  return (map[profile.goal] || map.intro).map(turn => ({
+    ...turn,
+    keywords: turn.keywords || keywords
+  }));
+}
+
+function renderCustomScenarioGrid() {
+  const grid = document.getElementById('customScenarioGrid');
+  if (!customScenarios.length) {
+    grid.innerHTML = '<div class="empty-state">还没有定制场景。先点“载入 TPS 示例”，或者把你的角色、产品和场景填进去生成一个。</div>';
+    return;
+  }
+  const done = getCompleted();
+  grid.innerHTML = customScenarios.map(s => {
+    const isDone = done.includes(s.id);
+    return `
+    <div class="scenario-card" onclick="startScenario('${s.id}')">
+      <div class="scenario-icon">${s.icon}</div>
+      <div class="scenario-info">
+        <h3>${escapeHTML(s.title)}</h3>
+        <p>${escapeHTML(s.desc)}</p>
+        <span class="scenario-tag">${escapeHTML(s.tag)} · ${s.turns.length}轮对话</span>
+      </div>
+      ${isDone ? '<span class="scenario-done">✅</span>' : ''}
+    </div>`;
+  }).join('');
+}
 
 // ===================== APP STATE =====================
 let currentScenario = null;
@@ -449,6 +837,7 @@ function markCompleted(id) {
 
 // ===================== INIT =====================
 function init() {
+  loadCustomScenarios();
   checkSpeechSupport();
   loadSpeechRate();
   renderHome();
@@ -491,10 +880,13 @@ function renderHome() {
   document.getElementById('chatScreen').style.display = 'none';
   document.getElementById('resultScreen').style.display = 'none';
   document.getElementById('backBtn').style.display = 'none';
-  document.getElementById('headerTitle').textContent = '旅行英语练习';
+  document.getElementById('headerTitle').textContent = '职业场景英语练习';
+  document.querySelector('.home-title').textContent = '把你的工作变成英语场景';
+  document.querySelector('.home-subtitle').textContent = '先填角色和业务，再开始练习听说';
+  renderCustomScenarioGrid();
   const grid = document.getElementById('scenarioGrid');
   const done = getCompleted();
-  const total = scenarios.length;
+  const total = getAllScenarios().length;
   const doneCount = done.length;
   grid.innerHTML = `<div class="home-progress">已完成 ${doneCount} / ${total} 个场景</div>` + scenarios.map(s => {
     const isDone = done.includes(s.id);
@@ -513,7 +905,8 @@ function renderHome() {
 
 // ===================== CHAT SCREEN =====================
 function startScenario(id) {
-  currentScenario = scenarios.find(s => s.id === id);
+  currentScenario = getAllScenarios().find(s => s.id === id);
+  if (!currentScenario) return;
   currentTurn = 0;
   results = {excellent:0, good:0, retry:0, corrections:[]};
 
@@ -523,7 +916,7 @@ function startScenario(id) {
   document.getElementById('controls').style.display = '';
   document.getElementById('backBtn').style.display = 'inline-block';
   document.getElementById('headerTitle').textContent = currentScenario.title;
-  document.getElementById('sceneIntro').innerHTML = `<b>${currentScenario.icon} ${currentScenario.title}</b> — ${currentScenario.desc}`;
+  document.getElementById('sceneIntro').innerHTML = `<b>${escapeHTML(currentScenario.icon)} ${escapeHTML(currentScenario.title)}</b> — ${escapeHTML(currentScenario.desc)}`;
   document.getElementById('chatArea').innerHTML = '';
   updateProgress();
   showCurrentTurn();
@@ -542,9 +935,9 @@ function showCurrentTurn() {
     <div class="npc-bubble">
       <div class="npc-avatar">${initials}</div>
       <div>
-        <div class="npc-name">${currentScenario.npcName}</div>
+        <div class="npc-name">${escapeHTML(currentScenario.npcName)}</div>
         <div class="npc-text">
-          <span id="${npcId}" style="display:none">${turn.npc}</span>
+          <span id="${npcId}" style="display:none">${escapeHTML(turn.npc)}</span>
           <span class="npc-text-hidden" id="${npcId}-placeholder" onclick="toggleNpcText('${npcId}')">&#128276; 听不懂？点击显示原文</span>
           <button class="replay-btn" onclick="speakNPC()" title="重新播放">&#128264;</button>
         </div>
@@ -556,7 +949,7 @@ function showCurrentTurn() {
   // Hint
   const hintDiv = document.createElement('div');
   hintDiv.className = 'chat-bubble';
-  hintDiv.innerHTML = `<div class="hint-box"><div class="hint-label">&#128161; 中文提示</div>${turn.hint}</div>`;
+  hintDiv.innerHTML = `<div class="hint-box"><div class="hint-label">&#128161; 中文提示</div>${escapeHTML(turn.hint)}</div>`;
   chat.appendChild(hintDiv);
 
   scrollToBottom();
@@ -693,7 +1086,7 @@ function processUserResponse(mainText, alternatives) {
   // User bubble
   const userDiv = document.createElement('div');
   userDiv.className = 'chat-bubble';
-  userDiv.innerHTML = `<div class="user-bubble"><div class="user-text">${mainText}</div></div>`;
+  userDiv.innerHTML = `<div class="user-bubble"><div class="user-text">${escapeHTML(mainText)}</div></div>`;
   chat.appendChild(userDiv);
 
   // Analyze
@@ -720,12 +1113,12 @@ function processUserResponse(mainText, alternatives) {
   const refId = 'ref-' + Date.now();
   if (analysis.score >= 1.0) {
     corrHTML += `<div class="correction-ref" style="color:#2e7d32">完美！和参考答案完全一致。</div>`;
-    corrHTML += `<div class="correction-ref"><span id="${refId}" style="display:none">${analysis.bestMatch}</span><button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264; 听参考发音</button></div>`;
+    corrHTML += `<div class="correction-ref"><span id="${refId}" style="display:none">${escapeHTML(analysis.bestMatch)}</span><button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264; 听参考发音</button></div>`;
   } else if (analysis.score >= 0.8) {
     corrHTML += `<div class="correction-ref" style="color:#2e7d32">你的表达没问题！以下是另一种常见说法供参考：</div>`;
-    corrHTML += `<div class="correction-ref"><b>参考：</b><span id="${refId}">${analysis.bestMatch}</span> <button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264;</button></div>`;
+    corrHTML += `<div class="correction-ref"><b>参考：</b><span id="${refId}">${escapeHTML(analysis.bestMatch)}</span> <button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264;</button></div>`;
   } else {
-    corrHTML += `<div class="correction-ref"><b>参考回答：</b><span id="${refId}">${analysis.bestMatch}</span> <button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264;</button></div>`;
+    corrHTML += `<div class="correction-ref"><b>参考回答：</b><span id="${refId}">${escapeHTML(analysis.bestMatch)}</span> <button class="play-ref-btn" onclick="speakRef('${refId}')" title="播放参考答案">&#128264;</button></div>`;
     if (analysis.yourIssues.length > 0) {
       corrHTML += `<div class="correction-ref" style="margin-top:4px"><b>你说的：</b>${analysis.highlighted}</div>`;
     }
@@ -837,16 +1230,17 @@ function highlightDiff(userNorm, expectedNorm) {
   const expSet = new Set(expWords);
   const userSet = new Set(userWords);
   const issues = [];
+  const esc = s => escapeHTML(s);
 
   const highlighted = userWords.map(w => {
-    if (expSet.has(w)) return `<span class="word-correct">${w}</span>`;
+    if (expSet.has(w)) return `<span class="word-correct">${esc(w)}</span>`;
     issues.push(w);
-    return `<span class="word-wrong">${w}</span>`;
+    return `<span class="word-wrong">${esc(w)}</span>`;
   }).join(' ');
 
   const missing = expWords.filter(w => !userSet.has(w));
   const missingHTML = missing.length > 0
-    ? ' <span class="word-missing">[缺少: ' + missing.join(', ') + ']</span>'
+    ? ' <span class="word-missing">[缺少: ' + esc(missing.join(', ')) + ']</span>'
     : '';
 
   return {highlighted: highlighted + missingHTML, issues};
@@ -937,7 +1331,7 @@ function showResults() {
 
   const total = results.excellent + results.good + results.retry;
   const pct = total > 0 ? Math.round(results.excellent / total * 100) : 0;
-  const title = currentScenario ? currentScenario.title : '未知';
+  const title = currentScenario ? escapeHTML(currentScenario.title) : '未知';
 
   let html = `
     <div class="stat-row"><span class="stat-label">场景</span><span class="stat-value">${title}</span></div>
@@ -951,10 +1345,10 @@ function showResults() {
   const needFix = results.corrections.filter(c => c.score < 0.8);
   if (needFix.length > 0) {
     html += '<div style="text-align:left;margin-top:16px;font-size:14px;font-weight:600;color:#666">需要改进的句子：</div>';
-    needFix.forEach(c => {
+  needFix.forEach(c => {
       html += '<div style="text-align:left;margin-top:8px;font-size:13px;line-height:1.5;padding:8px 0;border-bottom:1px solid #f0f0f0">';
-      html += '<div style="color:#c62828">你说的：' + c.user + '</div>';
-      html += '<div style="color:#1a73e8">参考：' + c.ref + '</div>';
+      html += '<div style="color:#c62828">你说的：' + escapeHTML(c.user) + '</div>';
+      html += '<div style="color:#1a73e8">参考：' + escapeHTML(c.ref) + '</div>';
       html += '</div>';
     });
   }
