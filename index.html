@@ -212,6 +212,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
       <input type="text" id="textInput" placeholder="输入你的英文回答..." onkeydown="if(event.key==='Enter')submitText()">
       <button onclick="submitText()">&#10148;</button>
     </div>
+    <button class="next-btn hidden" id="retryBtn" onclick="retryTurn()" style="background:#eceef0;color:#333;margin-bottom:8px">&#128257; 再说一次</button>
     <button class="next-btn hidden" id="nextBtn" onclick="nextTurn()">下一句 &#8594;</button>
   </div>
 </div>
@@ -1164,7 +1165,17 @@ function processUserResponse(mainText, alternatives) {
   nextBtn.classList.remove('hidden');
   nextBtn.textContent = currentTurn < currentScenario.turns.length - 1 ? '下一句 →' : '查看结果 →';
   nextBtn.disabled = false;
+  document.getElementById('retryBtn').classList.remove('hidden');
 
+  scrollToBottom();
+}
+
+function retryTurn() {
+  // 留在当前题，重新显示输入行，可再说一次（不推进 currentTurn）
+  document.getElementById('retryBtn').classList.add('hidden');
+  gotResult = false;
+  finalTranscript = '';
+  resetControls();
   scrollToBottom();
 }
 
@@ -1287,6 +1298,7 @@ function resetControls() {
   const toggle = document.getElementById('modeToggle');
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.classList.add('hidden');
+  document.getElementById('retryBtn').classList.add('hidden');
   toggle.classList.remove('hidden');
 
   document.getElementById('stopBtn').classList.add('hidden');
