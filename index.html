@@ -208,6 +208,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
       </div>
     </div>
     <button class="input-mode-toggle" id="modeToggle" onclick="toggleInputMode()">切换到打字输入</button>
+    <button class="input-mode-toggle" id="skipBtn" onclick="skipTurn()">跳过这题 &#9197;</button>
     <div class="text-input-row hidden" id="textRow">
       <input type="text" id="textInput" placeholder="输入你的英文回答..." onkeydown="if(event.key==='Enter')submitText()">
       <button onclick="submitText()">&#10148;</button>
@@ -1171,6 +1172,7 @@ function processUserResponse(mainText, alternatives) {
   document.getElementById('micRow').classList.add('hidden');
   document.getElementById('textRow').classList.add('hidden');
   document.getElementById('modeToggle').classList.add('hidden');
+  document.getElementById('skipBtn').classList.add('hidden');
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.classList.remove('hidden');
   nextBtn.textContent = currentTurn < currentScenario.turns.length - 1 ? '下一句 →' : '查看结果 →';
@@ -1310,6 +1312,7 @@ function resetControls() {
   nextBtn.classList.add('hidden');
   document.getElementById('retryBtn').classList.add('hidden');
   toggle.classList.remove('hidden');
+  document.getElementById('skipBtn').classList.remove('hidden');
 
   document.getElementById('stopBtn').classList.add('hidden');
   document.getElementById('micBtn').classList.remove('hidden');
@@ -1323,6 +1326,14 @@ function resetControls() {
     textRow.classList.remove('hidden');
     toggle.textContent = '切换到语音输入';
   }
+}
+
+function skipTurn() {
+  // 不作答，直接跳到下一题
+  if (isRecording && recognition) { try { recognition.stop(); } catch(ignore){} }
+  isRecording = false;
+  gotResult = true; // 阻止 onend 触发提交
+  nextTurn();
 }
 
 function updateProgress() {
